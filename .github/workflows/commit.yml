@@ -1,14 +1,10 @@
 on:
   workflow_dispatch:
     inputs:
-      solution-name:
-        description: Unique name of the solution to commit
-        required: true
       commit-message:
         description: Message to associate to the git commit
         required: true
         default: automated solution export/unpack/commit
-  push:
 
 jobs:
   export-managed:
@@ -54,17 +50,17 @@ jobs:
       - export-unmanaged
     steps:
       - uses: actions/checkout@v2
-      - name: download managed solution
+      - name: Download managed solution
         uses: actions/download-artifact@v2
         with:
           name: managed-solution
           path: ${{ runner.temp }}
-      - name: download unmanaged solution
+      - name: Download unmanaged solution
         uses: actions/download-artifact@v2
         with:
           name: unmanaged-solution
           path: ${{ runner.temp }}
-      - name: clear current solution folder
+      - name: Clear current solution folder
         run: |
           if [ -d melody_core ]
           then
@@ -75,7 +71,7 @@ jobs:
           solution-file: ${{ runner.temp }}/melody_core.zip
           solution-folder: melody_core
           solution-type: Both
-      - name: git commit
+      - name: Git commit
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"

@@ -80,6 +80,6 @@ jobs:
           git add melody_core
           if [[ "$(git diff --cached --numstat | wc -l)" -gt 0 ]]
           then
-            git commit -m "automated solution export/unpack/commit"
+            git commit -m "${{ github.event.inputs.commit-message }}"
             git push
           fi

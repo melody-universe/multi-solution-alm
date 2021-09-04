@@ -4,7 +4,7 @@ on:
       commit-message:
         description: Message to associate to the git commit
         required: true
-        default: automated solution export/unpack/commit
+        default: automated solution export/unpack/commit (melody_core)
 
 jobs:
   export-managed:

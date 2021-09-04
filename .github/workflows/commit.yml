@@ -1,0 +1,14 @@
+on:
+  workflow_dispatch:
+    inputs:
+      solution-name:
+        description: Unique name of the solution to commit
+        required: true
+  push:
+
+jobs:
+  export-managed:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "Hello, world"

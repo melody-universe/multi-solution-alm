@@ -25,3 +25,21 @@ jobs:
         with:
           name: managed-solution
           path: melody_core_managed.zip
+  export-unmanaged:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - uses: microsoft/powerplatform-actions/export-solution@v0
+        with:
+          environment-url: ${{ secrets.URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-name: melody_core
+          solution-output-file: melody_core.zip
+          managed: false
+          run-asynchronously: true
+      - uses: actions/upload-artifact@v2
+        with:
+          name: unmanaged-solution
+          path: melody_core.zip

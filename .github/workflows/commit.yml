@@ -64,6 +64,24 @@ jobs:
         with:
           name: unmanaged-solution
           path: ${{ runner.temp }}
-      - run: |
-          cd $RUNNER_TEMP
-          ls -R
+      - name: clear current solution folder
+        runs: |
+          if [ -d melody_core ]
+          then
+            rm melody_core -rf
+          fi
+      - uses: microsoft/powerplatform-actions/unpack-solution@v0
+        with:
+          solution-file: ${{ runner.temp }}/melody_core.zip
+          solution-folder: melody_core
+          solution-type: Both
+      - name: git commit
+        runs: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          git add melody_core
+          if [[ "$(git diff --cached --numstat | wc -l)" -gt 0 ]]
+          then
+            git commit -m "automated solution export/unpack/commit"
+            git push
+          fi

@@ -65,7 +65,7 @@ jobs:
           name: unmanaged-solution
           path: ${{ runner.temp }}
       - name: clear current solution folder
-        runs: |
+        run: |
           if [ -d melody_core ]
           then
             rm melody_core -rf
@@ -76,7 +76,7 @@ jobs:
           solution-folder: melody_core
           solution-type: Both
       - name: git commit
-        runs: |
+        run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
           git add melody_core

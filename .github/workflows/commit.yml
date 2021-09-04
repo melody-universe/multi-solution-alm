@@ -4,6 +4,10 @@ on:
       solution-name:
         description: Unique name of the solution to commit
         required: true
+      commit-message:
+        description: Message to associate to the git commit
+        required: true
+        default: automated solution export/unpack/commit
   push:
 
 jobs:
@@ -43,3 +47,23 @@ jobs:
         with:
           name: unmanaged-solution
           path: melody_core.zip
+  unpack-and-commit:
+    runs-on: ubuntu-latest
+    needs:
+      - export-managed
+      - export-unmanaged
+    steps:
+      - uses: actions/checkout@v2
+      - name: download managed solution
+        uses: actions/download-artifact@v2
+        with:
+          name: managed-solution
+          path: ${{ env.RUNNER_TEMP }}
+      - name: download unmanaged solution
+        uses: actions/download-artifact@v2
+        with:
+          name: unmanaged-solution
+          path: ${{ env.RUNNER_TEMP }}
+      - run: |
+          cd ${{ env.RUNNER_TEMP }}
+          ls -R

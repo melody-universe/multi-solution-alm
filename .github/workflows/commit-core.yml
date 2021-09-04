@@ -1,3 +1,5 @@
+name: Commit melody_core
+
 on:
   workflow_dispatch:
     inputs:

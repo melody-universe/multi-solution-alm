@@ -18,8 +18,7 @@ jobs:
           client-secret: ${{ secrets.CLIENT_SECRET }}
           tenant-id: ${{ secrets.TENANT_ID }}
           solution-name: melody_core
-          solution-output-file: melody_core_managed.zip
-          working-dir: ${{ env.RUNNER_TEMP }}
+          solution-output-file: ${{ env.RUNNER_TEMP }}/melody_core_managed.zip
           managed: true
           run-asynchronously: true
       - uses: actions/upload-artifact@v2

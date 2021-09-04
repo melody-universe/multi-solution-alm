@@ -58,12 +58,12 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: managed-solution
-          path: ${{ RUNNER_TEMP }}
+          path: ${{ runner.temp }}
       - name: download unmanaged solution
         uses: actions/download-artifact@v2
         with:
           name: unmanaged-solution
-          path: ${{ RUNNER_TEMP }}
+          path: ${{ runner.temp }}
       - run: |
           cd $RUNNER_TEMP
           ls -R

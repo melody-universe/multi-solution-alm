@@ -9,6 +9,20 @@ on:
 jobs:
   export-managed:
     runs-on: ubuntu-latest
+    environment: development
     steps:
-      - run: |
-          echo "Hello, world"
+      - uses: microsoft/powerplatform-actions/export-solution@v0
+        with:
+          environment-url: ${{ secrets.URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-name: melody_core
+          solution-output-file: melody_core_managed.zip
+          working-dir: ${{ env.RUNNER_TEMP }}
+          managed: true
+          run-asynchronously: true
+      - uses: actions/upload-artifact@v2
+        with:
+          name: managed-solution
+          path: ${{ env.RUNNER_TEMP }}/melody_core_managed.zip

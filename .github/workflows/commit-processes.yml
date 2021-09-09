@@ -1,0 +1,85 @@
+name: Commit melody_processes
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit-message:
+        description: Message to associate to the git commit
+        required: true
+        default: automated solution export/unpack/commit (melody_processes)
+
+jobs:
+  export-managed:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - uses: microsoft/powerplatform-actions/export-solution@v0
+        with:
+          environment-url: ${{ secrets.URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-name: melody_processes
+          solution-output-file: melody_processes_managed.zip
+          managed: true
+          run-asynchronously: true
+      - uses: actions/upload-artifact@v2
+        with:
+          name: managed-solution
+          path: melody_processes_managed.zip
+  export-unmanaged:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - uses: microsoft/powerplatform-actions/export-solution@v0
+        with:
+          environment-url: ${{ secrets.URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-name: melody_processes
+          solution-output-file: melody_processes.zip
+          managed: false
+          run-asynchronously: true
+      - uses: actions/upload-artifact@v2
+        with:
+          name: unmanaged-solution
+          path: melody_processes.zip
+  unpack-and-commit:
+    runs-on: ubuntu-latest
+    needs:
+      - export-managed
+      - export-unmanaged
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download managed solution
+        uses: actions/download-artifact@v2
+        with:
+          name: managed-solution
+          path: ${{ runner.temp }}
+      - name: Download unmanaged solution
+        uses: actions/download-artifact@v2
+        with:
+          name: unmanaged-solution
+          path: ${{ runner.temp }}
+      - name: Clear current solution folder
+        run: |
+          if [ -d melody_processes ]
+          then
+            rm melody_processes -rf
+          fi
+      - uses: microsoft/powerplatform-actions/unpack-solution@v0
+        with:
+          solution-file: ${{ runner.temp }}/melody_processes.zip
+          solution-folder: melody_processes
+          solution-type: Both
+      - name: Git commit
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          git add melody_processes
+          if [[ "$(git diff --cached --numstat | wc -l)" -gt 0 ]]
+          then
+            git commit -m "${{ github.event.inputs.commit-message }}"
+            git push
+          fi

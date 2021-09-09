@@ -6,10 +6,16 @@ on:
       - melody_core/*
       - melody_processes/*
       - .github/workflows/ci-cd.yml
+  workflow_run:
+    workflows:
+      - commit-core.yml
+      - commit-processes.yml
+    types: [completed]
 
 jobs:
   build-melody_core:
     runs-on: windows-latest
+    if: ${{ github.event.workflow_run == null || github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v2
       - uses: microsoft/powerplatform-actions/pack-solution@v0
@@ -23,6 +29,7 @@ jobs:
           path: ${{ runner.temp }}/melody_core.zip
   build-melody_processes:
     runs-on: windows-latest
+    if: ${{ github.event.workflow_run == null || github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v2
       - uses: microsoft/powerplatform-actions/pack-solution@v0

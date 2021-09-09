@@ -73,13 +73,6 @@ jobs:
           solution-file: ${{ runner.temp }}/melody_processes.zip
           solution-folder: melody_processes
           solution-type: Both
-      - name: Git commit
-        run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "<>"
-          git add melody_processes
-          if [[ "$(git diff --cached --numstat | wc -l)" -gt 0 ]]
-          then
-            git commit -m "${{ github.event.inputs.commit-message }}"
-            git push
-          fi
+      - uses: EndBug/add-and-commit@v7
+        with:
+          message: ${{ github.event.inputs.commit-message }}

@@ -43,7 +43,7 @@ jobs:
           path: ${{ runner.temp }}/melody_processes.zip
   deploy:
     environment: production
-    run-on: ubuntu-latest
+    runs-on: ubuntu-latest
     needs:
       - build-melody_core
       - build-melody_processes

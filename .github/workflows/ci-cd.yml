@@ -25,7 +25,7 @@ jobs:
           solution-type: Managed
       - uses: actions/upload-artifact@v2
         with:
-          name: solution
+          name: melody_core
           path: ${{ runner.temp }}/melody_core.zip
   build-melody_processes:
     runs-on: ubuntu-latest
@@ -39,5 +39,19 @@ jobs:
           solution-type: Managed
       - uses: actions/upload-artifact@v2
         with:
-          name: solution
+          name: melody_processes
           path: ${{ runner.temp }}/melody_processes.zip
+  deploy:
+    environment: production
+    run-on: ubuntu-latest
+    needs:
+      - build-melody_core
+      - build-melody_processes
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: melody_core
+      - uses: actions/download-artifact@v2
+        with:
+          name: melody_processes
+      - runs: ls -R

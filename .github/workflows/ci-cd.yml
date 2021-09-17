@@ -54,4 +54,4 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: melody_processes
-      - runs: ls -R
+      - run: ls -R

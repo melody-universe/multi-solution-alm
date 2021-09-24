@@ -61,5 +61,5 @@ jobs:
           app-id: ${{ secrets.CLIENT_ID }}
           client-secret: ${{ secrets.CLIENT_SECRET }}
           tenant-id: ${{ secrets.TENANT_ID }}
-          solution-file: melody_core_managed.zip
+          solution-file: melody_core.zip
           run-asynchronously: true

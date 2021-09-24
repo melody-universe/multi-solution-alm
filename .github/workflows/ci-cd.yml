@@ -63,3 +63,11 @@ jobs:
           tenant-id: ${{ secrets.TENANT_ID }}
           solution-file: melody_core.zip
           run-asynchronously: true
+      - uses: microsoft/powerplatform-actions/import-solution@v0
+        with:
+          environment-url: ${{ secrets.URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-file: melody_processes.zip
+          run-asynchronously: true

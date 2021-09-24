@@ -8,8 +8,8 @@ on:
       - .github/workflows/ci-cd.yml
   workflow_run:
     workflows:
-      - commit-core.yml
-      - commit-processes.yml
+      - Commit melody_core
+      - Commit melody_processes
     types: [completed]
   workflow_dispatch:
 

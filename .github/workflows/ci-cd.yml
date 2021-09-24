@@ -11,6 +11,7 @@ on:
       - commit-core.yml
       - commit-processes.yml
     types: [completed]
+  workflow_dispatch:
 
 jobs:
   build-melody_core:

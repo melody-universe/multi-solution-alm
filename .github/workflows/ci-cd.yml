@@ -33,8 +33,12 @@ jobs:
       - name: Get solution version
         id: get-solution-version
         run: |
-          version=$(sed -n 's|\s*<Version>\([0-9.]*\)</Version>|\1|p' melody_core/Other/Solution.xml)
-          echo "::set-output name=version::$version"
+          $xml = New-Object xml
+          $xml.Load("melody_core/Other/Solution.xml")
+          $versionNode = $xml.SelectSingleNode("/ImportExportXml/SolutionManifest/Version")
+          $version = $versionNode.InnerText
+          Write-Host "::set-output name=version::$version"
+        shell: pwsh
   build-melody_processes:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run == null || github.event.workflow_run.conclusion == 'success' }}
@@ -54,8 +58,12 @@ jobs:
       - name: Get solution version
         id: get-solution-version
         run: |
-          version=$(sed -n 's|\s*<Version>\([0-9.]*\)</Version>|\1|p' melody_core/Other/Solution.xml)
-          echo "::set-output name=version::$version"
+          $xml = New-Object xml
+          $xml.Load("melody_processes/Other/Solution.xml")
+          $versionNode = $xml.SelectSingleNode("/ImportExportXml/SolutionManifest/Version")
+          $version = $versionNode.InnerText
+          Write-Host "::set-output name=version::$version"
+        shell: pwsh
   deploy:
     environment: production
     runs-on: windows-latest

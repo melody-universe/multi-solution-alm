@@ -150,7 +150,7 @@ jobs:
     environment: development
     steps:
     - name: Update dev version
-      shell: pwsh
+      shell: powershell
       run: |
         Install-Module Microsoft.Xrm.Data.PowerShell -Force
         $conn = Get-CrmConnection -ConnectionString $env:CONNECTION_STRING

@@ -9,70 +9,86 @@ on:
         default: automated solution export/unpack/commit (melody_core)
 
 jobs:
-  export-managed:
-    runs-on: ubuntu-latest
-    environment: development
-    steps:
-      - uses: microsoft/powerplatform-actions/export-solution@v0
-        with:
-          environment-url: ${{ secrets.URL }}
-          app-id: ${{ secrets.CLIENT_ID }}
-          client-secret: ${{ secrets.CLIENT_SECRET }}
-          tenant-id: ${{ secrets.TENANT_ID }}
-          solution-name: melody_core
-          solution-output-file: melody_core_managed.zip
-          managed: true
-          run-asynchronously: true
-      - uses: actions/upload-artifact@v2
-        with:
-          name: managed-solution
-          path: melody_core_managed.zip
-  export-unmanaged:
-    runs-on: ubuntu-latest
-    environment: development
-    steps:
-      - uses: microsoft/powerplatform-actions/export-solution@v0
-        with:
-          environment-url: ${{ secrets.URL }}
-          app-id: ${{ secrets.CLIENT_ID }}
-          client-secret: ${{ secrets.CLIENT_SECRET }}
-          tenant-id: ${{ secrets.TENANT_ID }}
-          solution-name: melody_core
-          solution-output-file: melody_core.zip
-          managed: false
-          run-asynchronously: true
-      - uses: actions/upload-artifact@v2
-        with:
-          name: unmanaged-solution
-          path: melody_core.zip
+#  export-managed:
+#    runs-on: ubuntu-latest
+#    environment: development
+#    steps:
+#      - uses: microsoft/powerplatform-actions/export-solution@v0
+#        with:
+#          environment-url: ${{ secrets.URL }}
+#          app-id: ${{ secrets.CLIENT_ID }}
+#          client-secret: ${{ secrets.CLIENT_SECRET }}
+#          tenant-id: ${{ secrets.TENANT_ID }}
+#          solution-name: melody_core
+#          solution-output-file: melody_core_managed.zip
+#          managed: true
+#          run-asynchronously: true
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: managed-solution
+#          path: melody_core_managed.zip
+#  export-unmanaged:
+#    runs-on: ubuntu-latest
+#    environment: development
+#    steps:
+#      - uses: microsoft/powerplatform-actions/export-solution@v0
+#        with:
+#          environment-url: ${{ secrets.URL }}
+#          app-id: ${{ secrets.CLIENT_ID }}
+#          client-secret: ${{ secrets.CLIENT_SECRET }}
+#          tenant-id: ${{ secrets.TENANT_ID }}
+#          solution-name: melody_core
+#          solution-output-file: melody_core.zip
+#          managed: false
+#          run-asynchronously: true
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: unmanaged-solution
+#          path: melody_core.zip
   unpack-and-commit:
     runs-on: ubuntu-latest
-    needs:
-      - export-managed
-      - export-unmanaged
+#    needs:
+#      - export-managed
+#      - export-unmanaged
     steps:
-      - uses: actions/checkout@v2
-      - name: Download managed solution
-        uses: actions/download-artifact@v2
-        with:
-          name: managed-solution
-          path: ${{ runner.temp }}
-      - name: Download unmanaged solution
-        uses: actions/download-artifact@v2
-        with:
-          name: unmanaged-solution
-          path: ${{ runner.temp }}
-      - name: Clear current solution folder
+#      - uses: actions/checkout@v2
+#      - name: Download managed solution
+#        uses: actions/download-artifact@v2
+#        with:
+#          name: managed-solution
+#          path: ${{ runner.temp }}
+#      - name: Download unmanaged solution
+#        uses: actions/download-artifact@v2
+#        with:
+#          name: unmanaged-solution
+#          path: ${{ runner.temp }}
+#      - name: Clear current solution folder
+#        run: |
+#          if [ -d melody_core ]
+#          then
+#            rm melody_core -rf
+#          fi
+      - name: Check for manual version update
         run: |
-          if [ -d melody_core ]
+          message=${MESSAGE,,}
+          if [[ $message =~ ^major:.*$ ]]
           then
-            rm melody_core -rf
+            echo "major"
+          elif [[ $message =~ ^minor:.*$ ]]
+            echo "minor"
+          elif [[ $message =~ ^build:.*$ ]]
+            echo "build"
+          else
+            echo "no manual version update found"
           fi
-      - uses: microsoft/powerplatform-actions/unpack-solution@v0
-        with:
-          solution-file: ${{ runner.temp }}/melody_core.zip
-          solution-folder: melody_core
-          solution-type: Both
-      - uses: EndBug/add-and-commit@v7
-        with:
-          message: ${{ github.event.inputs.commit-message }}
+        env:
+          MESSAGE: ${{ github.event.inputs.commit-message }}
+#      - uses: microsoft/powerplatform-actions/unpack-solution@v0
+#        with:
+#          solution-file: ${{ runner.temp }}/melody_core.zip
+#          solution-folder: melody_core
+#          solution-type: Both
+#      - 
+#      - uses: EndBug/add-and-commit@v7
+#        with:
+#          message: ${{ github.event.inputs.commit-message }}

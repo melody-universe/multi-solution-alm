@@ -60,7 +60,7 @@ jobs:
           $conn = Get-CrmConnection -ConnectionString $env:CONNECTION_STRING
           $solutions = Get-CrmRecordsByFetch `
             -conn $conn `
-            -Fetch `
+            -Fetch ( `
               "<fetch>" +
                 "<entity name=`"solution`">" +
                   "<attribute name=`"uniquename`" />" +
@@ -73,6 +73,7 @@ jobs:
                   "</filter>" +
                 "</entity>" +
               "</fetch>"
+            )
           Write-Host $solutions
         shell: powershell
         env:

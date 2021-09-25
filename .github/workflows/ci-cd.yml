@@ -21,15 +21,15 @@ jobs:
       version: ${{ steps.get-solution-version.outputs.version }}
     steps:
       - uses: actions/checkout@v2
-      #      - uses: microsoft/powerplatform-actions/pack-solution@v0
-      #        with:
-      #          solution-file: ${{ runner.temp }}/melody_core.zip
-      #          solution-folder: melody_core
-      #          solution-type: Managed
-      #      - uses: actions/upload-artifact@v2
-      #        with:
-      #          name: melody_core
-      #          path: ${{ runner.temp }}/melody_core.zip
+      - uses: microsoft/powerplatform-actions/pack-solution@v0
+        with:
+          solution-file: ${{ runner.temp }}/melody_core.zip
+          solution-folder: melody_core
+          solution-type: Managed
+      - uses: actions/upload-artifact@v2
+        with:
+          name: melody_core
+          path: ${{ runner.temp }}/melody_core.zip
       - name: Get solution version
         id: get-solution-version
         run: |
@@ -46,15 +46,15 @@ jobs:
       version: ${{ steps.get-solution-version.outputs.version }}
     steps:
       - uses: actions/checkout@v2
-      #      - uses: microsoft/powerplatform-actions/pack-solution@v0
-      #        with:
-      #          solution-file: ${{ runner.temp }}/melody_processes.zip
-      #          solution-folder: melody_processes
-      #          solution-type: Managed
-      #      - uses: actions/upload-artifact@v2
-      #        with:
-      #          name: melody_processes
-      #          path: ${{ runner.temp }}/melody_processes.zip
+      - uses: microsoft/powerplatform-actions/pack-solution@v0
+        with:
+          solution-file: ${{ runner.temp }}/melody_processes.zip
+          solution-folder: melody_processes
+          solution-type: Managed
+      - uses: actions/upload-artifact@v2
+        with:
+          name: melody_processes
+          path: ${{ runner.temp }}/melody_processes.zip
       - name: Get solution version
         id: get-solution-version
         run: |
@@ -71,12 +71,6 @@ jobs:
       - build-melody_core
       - build-melody_processes
     steps:
-      #      - uses: actions/download-artifact@v2
-      #        with:
-      #          name: melody_core
-      #      - uses: actions/download-artifact@v2
-      #        with:
-      #          name: melody_processes
       - run: |
           function Get-ImportAction($compiledVersion, $deployedVersion) {
             $compiledParts = $compiledVersion.Split(".")
@@ -131,25 +125,31 @@ jobs:
           melody_processes_VERSION: ${{ needs.build-melody_processes.outputs.version }}
         id: deployment-plan
         name: Get deployment plan
-      - run: |
-          echo "Core version: ${{ steps.deployment-plan.outputs.melody_core-action }}"
-          echo "Processes version: ${{ steps.deployment-plan.outputs.melody_processes-action }}"
-        name: Check deployment plan
-#      - uses: microsoft/powerplatform-actions/import-solution@v0
-#        with:
-#          environment-url: ${{ secrets.URL }}
-#          app-id: ${{ secrets.CLIENT_ID }}
-#          client-secret: ${{ secrets.CLIENT_SECRET }}
-#          tenant-id: ${{ secrets.TENANT_ID }}
-#          solution-file: melody_core.zip
-#          run-asynchronously: true
-#          import-as-holding: true
-#      - uses: microsoft/powerplatform-actions/import-solution@v0
-#        with:
-#          environment-url: ${{ secrets.URL }}
-#          app-id: ${{ secrets.CLIENT_ID }}
-#          client-secret: ${{ secrets.CLIENT_SECRET }}
-#          tenant-id: ${{ secrets.TENANT_ID }}
-#          solution-file: melody_processes.zip
-#          run-asynchronously: true
-#          import-as-holding: true
+      - uses: actions/download-artifact@v2
+        if: ${{ steps.deployment-plan.outputs.melody_core-action != 'skip' }}
+        with:
+          name: melody_core
+      - uses: microsoft/powerplatform-actions/import-solution@v0
+        if: ${{ steps.deployment-plan.outputs.melody_core-action != 'skip' }}
+        with:
+          environment-url: ${{ secrets.URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-file: melody_core.zip
+          run-asynchronously: true
+          import-as-holding: true
+      - uses: actions/download-artifact@v2
+        if: ${{ steps.deployment-plan.outputs.melody_processes-action != 'skip' }}
+        with:
+          name: melody_processes
+      - uses: microsoft/powerplatform-actions/import-solution@v0
+        if: ${{ steps.deployment-plan.outputs.melody_processes-action != 'skip' }}
+        with:
+          environment-url: ${{ secrets.URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-file: melody_processes.zip
+          run-asynchronously: true
+          import-as-holding: true

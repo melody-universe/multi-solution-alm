@@ -65,7 +65,6 @@ jobs:
           $xml.Load("melody_processes/Other/Solution.xml")
           $versionNode = $xml.SelectSingleNode("/ImportExportXml/SolutionManifest/Version")
           $version = $versionNode.InnerText
-          Write-Host "Version: $version"
           Write-Host "::set-output name=version::$version"
         shell: pwsh
   deploy:
@@ -125,7 +124,7 @@ jobs:
         shell: powershell
         env:
           CONNECTION_STRING: "AuthType=ClientSecret; TenantId=${{ secrets.TENANT_ID }}; ClientId=${{ secrets.CLIENT_ID }}; ClientSecret=${{ secrets.CLIENT_SECRET }}; Url=${{ secrets.URL }}"
-          melody_core_VERSION: ${{ needs.build-melody_processes.outputs.version }}
+          melody_core_VERSION: ${{ needs.build-melody_core.outputs.version }}
           melody_processes_VERSION: ${{ needs.build-melody_processes.outputs.version }}
         id: deployment-plan
         name: Get deployment plan

@@ -125,11 +125,13 @@ jobs:
           melody_processes_VERSION: ${{ needs.build-melody_processes.outputs.version }}
         id: deployment-plan
         name: Get deployment plan
-      - uses: actions/download-artifact@v2
+      - name: Download melody_core
+        uses: actions/download-artifact@v2
         if: ${{ steps.deployment-plan.outputs.melody_core-action != 'skip' }}
         with:
           name: melody_core
-      - uses: microsoft/powerplatform-actions/import-solution@v0
+      - name: Import melody_core
+        uses: microsoft/powerplatform-actions/import-solution@v0
         if: ${{ steps.deployment-plan.outputs.melody_core-action != 'skip' }}
         with:
           environment-url: ${{ secrets.URL }}
@@ -139,11 +141,13 @@ jobs:
           solution-file: melody_core.zip
           run-asynchronously: true
           import-as-holding: true
-      - uses: actions/download-artifact@v2
+      - name: Download melody_processes
+        uses: actions/download-artifact@v2
         if: ${{ steps.deployment-plan.outputs.melody_processes-action != 'skip' }}
         with:
           name: melody_processes
-      - uses: microsoft/powerplatform-actions/import-solution@v0
+      - name: Import melody_processes
+        uses: microsoft/powerplatform-actions/import-solution@v0
         if: ${{ steps.deployment-plan.outputs.melody_processes-action != 'skip' }}
         with:
           environment-url: ${{ secrets.URL }}

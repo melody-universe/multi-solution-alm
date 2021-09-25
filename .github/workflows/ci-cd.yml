@@ -77,7 +77,6 @@ jobs:
           $solutions.CrmRecords | ForEach-Object {
             $solution = $_
             Write-Host "::set-output name=$($solution.uniquename)-version::$($solution.version)"
-            Write-Host "wrote this: ::set-output name=$($solution.uniquename)-version::$($solution.version)"
           }
         shell: powershell
         env:
@@ -85,8 +84,8 @@ jobs:
         id: deployment-plan
         name: Get deployment plan
       - run: |
-          echo "${{ steps.deployment-plan.melody_core-version }}"
-          echo "${{ steps.deployment-plan.melody_processes-version }}"
+          echo "${{ steps.deployment-plan.outputs.melody_core-version }}"
+          echo "${{ steps.deployment-plan.outputs.melody_processes-version }}"
         name: Output versions
 #      - uses: microsoft/powerplatform-actions/import-solution@v0
 #        with:

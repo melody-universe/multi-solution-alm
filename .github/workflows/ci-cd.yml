@@ -33,7 +33,7 @@ jobs:
       - name: Get solution version
         id: get-solution-version
         run: |
-          version=$(sed -n 's|<Version>\([0-9.]*\)</Version>|\1|p' melody_core/Other/Solution.xml)
+          version=$(sed -n 's|\s*<Version>\([0-9.]*\)</Version>|\1|p' melody_core/Other/Solution.xml)
           echo "::set-output name=version::$version"
   build-melody_processes:
     runs-on: ubuntu-latest
@@ -54,7 +54,7 @@ jobs:
       - name: Get solution version
         id: get-solution-version
         run: |
-          version=$(sed -n 's|<Version>\([0-9.]*\)</Version>|\1|p' melody_core/Other/Solution.xml)
+          version=$(sed -n 's|\s*<Version>\([0-9.]*\)</Version>|\1|p' melody_core/Other/Solution.xml)
           echo "::set-output name=version::$version"
   deploy:
     environment: production

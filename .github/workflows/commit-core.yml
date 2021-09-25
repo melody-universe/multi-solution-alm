@@ -9,67 +9,72 @@ on:
         default: automated solution export/unpack/commit (melody_core)
 
 jobs:
-#  export-managed:
-#    runs-on: ubuntu-latest
-#    environment: development
-#    steps:
-#      - uses: microsoft/powerplatform-actions/export-solution@v0
-#        with:
-#          environment-url: ${{ secrets.URL }}
-#          app-id: ${{ secrets.CLIENT_ID }}
-#          client-secret: ${{ secrets.CLIENT_SECRET }}
-#          tenant-id: ${{ secrets.TENANT_ID }}
-#          solution-name: melody_core
-#          solution-output-file: melody_core_managed.zip
-#          managed: true
-#          run-asynchronously: true
-#      - uses: actions/upload-artifact@v2
-#        with:
-#          name: managed-solution
-#          path: melody_core_managed.zip
-#  export-unmanaged:
-#    runs-on: ubuntu-latest
-#    environment: development
-#    steps:
-#      - uses: microsoft/powerplatform-actions/export-solution@v0
-#        with:
-#          environment-url: ${{ secrets.URL }}
-#          app-id: ${{ secrets.CLIENT_ID }}
-#          client-secret: ${{ secrets.CLIENT_SECRET }}
-#          tenant-id: ${{ secrets.TENANT_ID }}
-#          solution-name: melody_core
-#          solution-output-file: melody_core.zip
-#          managed: false
-#          run-asynchronously: true
-#      - uses: actions/upload-artifact@v2
-#        with:
-#          name: unmanaged-solution
-#          path: melody_core.zip
+  export-managed:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - uses: microsoft/powerplatform-actions/export-solution@v0
+        with:
+          environment-url: ${{ secrets.URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-name: melody_core
+          solution-output-file: melody_core_managed.zip
+          managed: true
+          run-asynchronously: true
+      - uses: actions/upload-artifact@v2
+        with:
+          name: managed-solution
+          path: melody_core_managed.zip
+  export-unmanaged:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - uses: microsoft/powerplatform-actions/export-solution@v0
+        with:
+          environment-url: ${{ secrets.URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-name: melody_core
+          solution-output-file: melody_core.zip
+          managed: false
+          run-asynchronously: true
+      - uses: actions/upload-artifact@v2
+        with:
+          name: unmanaged-solution
+          path: melody_core.zip
   unpack-and-commit:
     runs-on: ubuntu-latest
-#    needs:
-#      - export-managed
-#      - export-unmanaged
+    needs:
+      - export-managed
+      - export-unmanaged
     steps:
-#      - uses: actions/checkout@v2
-#      - name: Download managed solution
-#        uses: actions/download-artifact@v2
-#        with:
-#          name: managed-solution
-#          path: ${{ runner.temp }}
-#      - name: Download unmanaged solution
-#        uses: actions/download-artifact@v2
-#        with:
-#          name: unmanaged-solution
-#          path: ${{ runner.temp }}
-#      - name: Clear current solution folder
-#        run: |
-#          if [ -d melody_core ]
-#          then
-#            rm melody_core -rf
-#          fi
-      - name: Check for manual version update action
-        id: get-manual-version-update-action
+      - uses: actions/checkout@v2
+      - name: Download managed solution
+        uses: actions/download-artifact@v2
+        with:
+          name: managed-solution
+          path: ${{ runner.temp }}
+      - name: Download unmanaged solution
+        uses: actions/download-artifact@v2
+        with:
+          name: unmanaged-solution
+          path: ${{ runner.temp }}
+      - name: Clear current solution folder
+        run: |
+          if [ -d melody_core ]
+          then
+            rm melody_core -rf
+          fi
+      - uses: microsoft/powerplatform-actions/unpack-solution@v0
+        with:
+          solution-file: ${{ runner.temp }}/melody_core.zip
+          solution-folder: melody_core
+          solution-type: Both
+      - name: Get version update action
+        id: get-version-update-action
         run: |
           message=${MESSAGE,,}
           if [[ $message =~ ^major:.*$ ]]
@@ -81,23 +86,54 @@ jobs:
           elif [[ $message =~ ^build:.*$ ]]
           then
             action="build"
+          elif [[ $message =~ ^revision:.*$ || $(git diff --numstat | wc -l) -gt 0 ]]
+          then
+            action="revision"
           else
-            echo "no manual version update found"
+            echo "no version update action found"
           fi
 
           if [[ ! -z ${action+x} ]]
           then
             echo "version update action: $action"
-            echo "::set-output name=get-manual-version-update-action::$action"
+            echo "::set-output name=action::$action"
           fi
         env:
           MESSAGE: ${{ github.event.inputs.commit-message }}
-#      - uses: microsoft/powerplatform-actions/unpack-solution@v0
-#        with:
-#          solution-file: ${{ runner.temp }}/melody_core.zip
-#          solution-folder: melody_core
-#          solution-type: Both
-#      - 
-#      - uses: EndBug/add-and-commit@v7
-#        with:
-#          message: ${{ github.event.inputs.commit-message }}
+      - name: Set solution version
+        id: set-solution-version
+        if: ${{ steps.get-version-update-action.outputs.action != null }}
+        shell: pwsh
+        run: |
+          $solutionXmlPath = "melody_core/Other/Solution.xml"
+          $solutionXml = New-Object xml
+          $solutionXml.Load($solutionXmlPath)
+          $versionNode = $solutionXml.SelectSingleNode("/ImportExportXml/SolutionManifest/Version")
+          $version = $versionNode.InnerText
+          $parts = $version.Split(".") | ForEach-Object { [int]::Parse($_) }
+          switch($env:ACTION) {
+            "major" {
+              $parts[0]++
+              $parts[1] = $parts[2] = $parts[3] = 0
+            }
+            "major" {
+              $parts[1]++
+              $parts[2] = $parts[3] = 0
+            }
+            "major" {
+              $parts[2]++
+              $parts[3] = 0
+            }
+            "major" {
+              $parts[3]++
+            }
+          }
+          $newVersion = [string]::Join(".", $parts)
+          Write-Host "::set-output name=version::$newVersion"
+          $versionNode.InnerText = $newVersion
+          $solutionXml.Save($solutionXmlPath)
+        env:
+          ACTION: ${{ steps.get-version-update-action.outputs.action }}
+      - uses: EndBug/add-and-commit@v7
+        with:
+          message: ${{ github.event.inputs.commit-message }}

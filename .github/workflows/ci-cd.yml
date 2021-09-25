@@ -77,6 +77,7 @@ jobs:
           $solutions.CrmRecords | ForEach-Object {
             $solution = $_
             Write-Host "::set-output name=$($solution.uniquename)-version::$($solution.version)"
+            Write-Host "wrote this: ::set-output name=$($solution.uniquename)-version::$($solution.version)"
           }
         shell: powershell
         env:

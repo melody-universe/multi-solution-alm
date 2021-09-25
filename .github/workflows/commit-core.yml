@@ -161,7 +161,7 @@ jobs:
             -FilterOperator eq `
             -FilterValue melody_core `
             -Fields @("solutionid")
-          $solution = $results[0]
+          $solution = $results.CrmRecords[0]
           Set-CrmRecord `
             -conn $conn `
             -EntityLogicalName solution `

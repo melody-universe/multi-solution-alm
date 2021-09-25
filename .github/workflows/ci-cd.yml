@@ -14,47 +14,47 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-melody_core:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run == null || github.event.workflow_run.conclusion == 'success' }}
-    steps:
-      - uses: actions/checkout@v2
-      - uses: microsoft/powerplatform-actions/pack-solution@v0
-        with:
-          solution-file: ${{ runner.temp }}/melody_core.zip
-          solution-folder: melody_core
-          solution-type: Managed
-      - uses: actions/upload-artifact@v2
-        with:
-          name: melody_core
-          path: ${{ runner.temp }}/melody_core.zip
-  build-melody_processes:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run == null || github.event.workflow_run.conclusion == 'success' }}
-    steps:
-      - uses: actions/checkout@v2
-      - uses: microsoft/powerplatform-actions/pack-solution@v0
-        with:
-          solution-file: ${{ runner.temp }}/melody_processes.zip
-          solution-folder: melody_processes
-          solution-type: Managed
-      - uses: actions/upload-artifact@v2
-        with:
-          name: melody_processes
-          path: ${{ runner.temp }}/melody_processes.zip
+#  build-melody_core:
+#    runs-on: ubuntu-latest
+#    if: ${{ github.event.workflow_run == null || github.event.workflow_run.conclusion == 'success' }}
+#    steps:
+#      - uses: actions/checkout@v2
+#      - uses: microsoft/powerplatform-actions/pack-solution@v0
+#        with:
+#          solution-file: ${{ runner.temp }}/melody_core.zip
+#          solution-folder: melody_core
+#          solution-type: Managed
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: melody_core
+#          path: ${{ runner.temp }}/melody_core.zip
+#  build-melody_processes:
+#    runs-on: ubuntu-latest
+#    if: ${{ github.event.workflow_run == null || github.event.workflow_run.conclusion == 'success' }}
+#    steps:
+#      - uses: actions/checkout@v2
+#      - uses: microsoft/powerplatform-actions/pack-solution@v0
+#        with:
+#          solution-file: ${{ runner.temp }}/melody_processes.zip
+#          solution-folder: melody_processes
+#          solution-type: Managed
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: melody_processes
+#          path: ${{ runner.temp }}/melody_processes.zip
   deploy:
     environment: production
-    runs-on: ubuntu-latest
-    needs:
-      - build-melody_core
-      - build-melody_processes
+    runs-on: windows-latest
+#    needs:
+#      - build-melody_core
+#      - build-melody_processes
     steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: melody_core
-      - uses: actions/download-artifact@v2
-        with:
-          name: melody_processes
+#      - uses: actions/download-artifact@v2
+#        with:
+#          name: melody_core
+#      - uses: actions/download-artifact@v2
+#        with:
+#          name: melody_processes
       - run: |
           Install-Module Microsoft.Xrm.Data.PowerShell -Force
           $conn = Get-CrmConnection -ConnectionString $env:CONNECTION_STRING

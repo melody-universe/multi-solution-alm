@@ -68,20 +68,27 @@ jobs:
 #          then
 #            rm melody_core -rf
 #          fi
-      - name: Check for manual version update
+      - name: Check for manual version update action
+        id: get-manual-version-update-action
         run: |
           message=${MESSAGE,,}
           if [[ $message =~ ^major:.*$ ]]
           then
-            echo "major"
+            action="major"
           elif [[ $message =~ ^minor:.*$ ]]
           then
-            echo "minor"
+            action="minor"
           elif [[ $message =~ ^build:.*$ ]]
           then
-            echo "build"
+            action="build"
           else
             echo "no manual version update found"
+          fi
+
+          if [[ ! -z ${action+x} ]]
+          then
+            echo "version update action: $action"
+            echo "set-output name=get-manual-version-update-action::$action"
           fi
         env:
           MESSAGE: ${{ github.event.inputs.commit-message }}

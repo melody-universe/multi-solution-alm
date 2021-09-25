@@ -8,6 +8,8 @@ on:
         required: true
         default: automated solution export/unpack/commit (melody_core)
 
+concurrency: commit-melody_core
+
 jobs:
   export-managed:
     runs-on: ubuntu-latest

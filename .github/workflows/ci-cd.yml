@@ -58,13 +58,21 @@ jobs:
       - run: |
           Install-Module Microsoft.Xrm.Data.PowerShell -Force
           $conn = Get-CrmConnection -ConnectionString $env:CONNECTION_STRING
-          $solutions = Get-CrmRecords `
+          $solutions = Get-CrmRecordsByFetch `
             -conn $conn `
-            -EntityLogicalName solution `
-            -FilterAttribute uniquename `
-            -FilterOperator in `
-            -FilterValue @("melody_core", "melody_processes") `
-            -Fields @("uniquename", "version")
+            -Fetch `
+              "<fetch>" +
+                "<entity name=`"solution`">" +
+                  "<attribute name=`"uniquename`" />" +
+                  "<attribute name=`"version`" />" +
+                  "<filter>" +
+                    "<condition attribute=`"uniquename`" operator=`"in`">" +
+                      "<value>melody_core</value>" +
+                      "<value>melody_processes</value>" +
+                    "</condition>" +
+                  "</filter>" +
+                "</entity>" +
+              "</fetch>"
           Write-Host $solutions
         shell: powershell
         env:

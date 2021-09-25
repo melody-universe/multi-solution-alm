@@ -118,15 +118,15 @@ jobs:
               $parts[0]++
               $parts[1] = $parts[2] = $parts[3] = 0
             }
-            "major" {
+            "minor" {
               $parts[1]++
               $parts[2] = $parts[3] = 0
             }
-            "major" {
+            "build" {
               $parts[2]++
               $parts[3] = 0
             }
-            "major" {
+            "revision" {
               $parts[3]++
             }
           }

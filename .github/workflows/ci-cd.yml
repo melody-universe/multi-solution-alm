@@ -78,6 +78,23 @@ jobs:
       #        with:
       #          name: melody_processes
       - run: |
+          function Get-ImportAction($compiledVersion, $deployedVersion) {
+            $compiledParts = $compiledVersion.Split(".")
+            $deployedParts = $deployedVersion.Split(".")
+            for($i = 0; $i -lt 4; $i++) {
+              if($deployedParts[$i] -gt $compiledParts[$i]) {
+                return "skip"
+              } elseif($deployedParts[$i] -lt $compiledParts[$i]) {
+                if($i -ge 2) {
+                  return "update"
+                } else {
+                  return "upgrade"
+                }
+              }
+            }
+            return "skip"
+          }
+
           Install-Module Microsoft.Xrm.Data.PowerShell -Force
           $conn = Get-CrmConnection -ConnectionString $env:CONNECTION_STRING
           $solutions = Get-CrmRecordsByFetch `
@@ -98,8 +115,14 @@ jobs:
             )
           $solutions.CrmRecords | ForEach-Object {
             $solution = $_
-            Write-Host "$($solution.uniquename): Comparing local solution version ($([Environment]::GetEnvironmentVariable("$($solution.uniquename)_VERSION"))) to remote solution version ($($solution.version))"
-            Write-Host "::set-output name=$($solution.uniquename)-version::$($solution.version)"
+            $compiledVersion = [Environment]::GetEnvironmentVariable("$($solution.uniquename)_VERSION")
+            $deployedVersion = $solution.version
+            Write-Host "$($solution.uniquename):"
+            Write-Host "  compiled solution version: $compiledVersion"
+            Write-Host "  currently deployed solution version: $deployedVersion"
+            $importAction = Get-ImportAction $compiledVersion $deployedVersion
+            Write-Host "  import action: $importAction"
+            Write-Host "::set-output name=$($solution.uniquename)-action::$importAction"
           }
         shell: powershell
         env:
@@ -109,8 +132,8 @@ jobs:
         id: deployment-plan
         name: Get deployment plan
       - run: |
-          echo "Core version: ${{ steps.deployment-plan.outputs.melody_core-version }}"
-          echo "Processes version: ${{ steps.deployment-plan.outputs.melody_processes-version }}"
+          echo "Core version: ${{ steps.deployment-plan.outputs.melody_core-action }}"
+          echo "Processes version: ${{ steps.deployment-plan.outputs.melody_processes-action }}"
         name: Check deployment plan
 #      - uses: microsoft/powerplatform-actions/import-solution@v0
 #        with:

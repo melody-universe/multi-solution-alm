@@ -52,6 +52,8 @@ jobs:
     needs:
       - export-managed
       - export-unmanaged
+    outputs:
+      version: ${{ steps.set-version.outputs.version }}
     steps:
       - uses: actions/checkout@v2
       - name: Download managed solution
@@ -102,13 +104,14 @@ jobs:
           fi
         env:
           MESSAGE: ${{ github.event.inputs.commit-message }}
-      - name: Set solution version
-        id: set-solution-version
+      - name: Set version
+        id: set-version
         if: ${{ steps.get-version-update-action.outputs.action != null }}
         shell: pwsh
         run: |
           $solutionXmlPath = "melody_core/Other/Solution.xml"
           $solutionXml = New-Object xml
+          $solutionXml.PreserveWhitespace = $true
           $solutionXml.Load($solutionXmlPath)
           $versionNode = $solutionXml.SelectSingleNode("/ImportExportXml/SolutionManifest/Version")
           $version = $versionNode.InnerText
@@ -140,3 +143,29 @@ jobs:
       - uses: EndBug/add-and-commit@v7
         with:
           message: ${{ github.event.inputs.commit-message }}
+  update-dev-version:
+    runs-on: windows-latest
+    needs: [unpack-and-commit]
+    if: ${{ needs.unpack-and-commit.outputs.version != null }}
+    environment: development
+    steps:
+    - name: Update dev version
+      shell: pwsh
+      run: |
+        Install-Module Microsoft.Xrm.Data.PowerShell -Force
+        $conn = Get-CrmConnection -ConnectionString $env:CONNECTION_STRING
+        $results = Get-CrmRecords `
+          -conn $conn `
+          -EntityLogicalName solution `
+          -FilterAttribute uniquename `
+          -FilterOperator eq `
+          -FilterValue melody_core `
+          -Fields @("solutionid")
+        $solution = $results[0]
+        $solution.version = $env:VERSION
+        Set-CrmRecord `
+          -conn $conn `
+          -CrmRecord $solution
+      env:
+        CONNECTION_STRING: "AuthType=ClientSecret; TenantId=${{ secrets.TENANT_ID }}; ClientId=${{ secrets.CLIENT_ID }}; ClientSecret=${{ secrets.CLIENT_SECRET }}; Url=${{ secrets.URL }}"
+        VERSION: ${{ needs.unpack-and-commit.outputs.version }}

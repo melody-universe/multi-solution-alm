@@ -39,6 +39,7 @@ jobs:
           $xml.Load("melody_core/Other/Solution.xml")
           $versionNode = $xml.SelectSingleNode("/ImportExportXml/SolutionManifest/Version")
           $version = $versionNode.InnerText
+          Write-Host "Version: $version"
           Write-Host "::set-output name=version::$version"
         shell: pwsh
   build-melody_processes:
@@ -64,6 +65,7 @@ jobs:
           $xml.Load("melody_processes/Other/Solution.xml")
           $versionNode = $xml.SelectSingleNode("/ImportExportXml/SolutionManifest/Version")
           $version = $versionNode.InnerText
+          Write-Host "Version: $version"
           Write-Host "::set-output name=version::$version"
         shell: pwsh
   deploy:

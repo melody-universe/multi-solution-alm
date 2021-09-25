@@ -13,6 +13,8 @@ on:
     types: [completed]
   workflow_dispatch:
 
+concurrency: production
+
 jobs:
   build-melody_core:
     runs-on: ubuntu-latest

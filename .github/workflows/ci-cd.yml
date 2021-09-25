@@ -56,7 +56,7 @@ jobs:
 #        with:
 #          name: melody_processes
       - run: |
-          Install-Module Microsoft.Xrm.Data.PowerShell -Force
+          Install-Module Microsoft.Xrm.Data.PowerShell
           $conn = Get-CrmConnection -ConnectionString $env:CONNECTION_STRING
           Invoke-CrmWhoAmI -conn $conn
         shell: powershell

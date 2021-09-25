@@ -120,6 +120,7 @@ jobs:
             $importAction = Get-ImportAction $compiledVersion $deployedVersion
             Write-Host "  import action: $importAction"
             Write-Host "::set-output name=$($solution.uniquename)-action::$importAction"
+            Write-Host "::set-output name=$($solution.uniquename)-holding::$($importAction -eq "upgrade")"
           }
         shell: powershell
         env:
@@ -143,6 +144,7 @@ jobs:
           tenant-id: ${{ secrets.TENANT_ID }}
           solution-file: melody_core.zip
           run-asynchronously: true
+          import-as-holding: ${{ steps.deployment-plan.outputs.melody_core-holding }}
       - name: Download melody_processes
         uses: actions/download-artifact@v2
         if: ${{ steps.deployment-plan.outputs.melody_processes-action != 'skip' }}
@@ -158,3 +160,24 @@ jobs:
           tenant-id: ${{ secrets.TENANT_ID }}
           solution-file: melody_processes.zip
           run-asynchronously: true
+          import-as-holding: ${{ steps.deployment-plan.outputs.melody_processes-holding }}
+      - name: Upgrade melody_processes
+        uses: microsoft/powerplatform-actions/upgrade-solution@v0
+        if: ${{ steps.deployment-plan.outputs.melody_processes-action == 'upgrade' }}
+        with:
+          environment-url: ${{ secrets.URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-name: melody_processes
+          async: true
+      - name: Upgrade melody_core
+        uses: microsoft/powerplatform-actions/upgrade-solution@v0
+        if: ${{ steps.deployment-plan.outputs.melody_core-action == 'upgrade' }}
+        with:
+          environment-url: ${{ secrets.URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-name: melody_core
+          async: true

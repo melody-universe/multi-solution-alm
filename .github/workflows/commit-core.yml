@@ -131,6 +131,7 @@ jobs:
             }
           }
           $newVersion = [string]::Join(".", $parts)
+          Write-Host "Changing version from $version to $newVersion"
           Write-Host "::set-output name=version::$newVersion"
           $versionNode.InnerText = $newVersion
           $solutionXml.Save($solutionXmlPath)

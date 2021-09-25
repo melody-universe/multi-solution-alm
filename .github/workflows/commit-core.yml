@@ -149,23 +149,26 @@ jobs:
     if: ${{ needs.unpack-and-commit.outputs.version != null }}
     environment: development
     steps:
-    - name: Update dev version
-      shell: powershell
-      run: |
-        Install-Module Microsoft.Xrm.Data.PowerShell -Force
-        $conn = Get-CrmConnection -ConnectionString $env:CONNECTION_STRING
-        $results = Get-CrmRecords `
-          -conn $conn `
-          -EntityLogicalName solution `
-          -FilterAttribute uniquename `
-          -FilterOperator eq `
-          -FilterValue melody_core `
-          -Fields @("solutionid")
-        $solution = $results[0]
-        $solution.version = $env:VERSION
-        Set-CrmRecord `
-          -conn $conn `
-          -CrmRecord $solution
-      env:
-        CONNECTION_STRING: "AuthType=ClientSecret; TenantId=${{ secrets.TENANT_ID }}; ClientId=${{ secrets.CLIENT_ID }}; ClientSecret=${{ secrets.CLIENT_SECRET }}; Url=${{ secrets.URL }}"
-        VERSION: ${{ needs.unpack-and-commit.outputs.version }}
+      - name: Update dev version
+        shell: powershell
+        run: |
+          Install-Module Microsoft.Xrm.Data.PowerShell -Force
+          $conn = Get-CrmConnection -ConnectionString $env:CONNECTION_STRING
+          $results = Get-CrmRecords `
+            -conn $conn `
+            -EntityLogicalName solution `
+            -FilterAttribute uniquename `
+            -FilterOperator eq `
+            -FilterValue melody_core `
+            -Fields @("solutionid")
+          $solution = $results[0]
+          Set-CrmRecord `
+            -conn $conn `
+            -EntityLogicalName solution `
+            -Id $solution.solutionid `
+            -Fields @{
+              version = $env:VERSION
+            }
+        env:
+          CONNECTION_STRING: "AuthType=ClientSecret; TenantId=${{ secrets.TENANT_ID }}; ClientId=${{ secrets.CLIENT_ID }}; ClientSecret=${{ secrets.CLIENT_SECRET }}; Url=${{ secrets.URL }}"
+          VERSION: ${{ needs.unpack-and-commit.outputs.version }}

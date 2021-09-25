@@ -55,19 +55,28 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: melody_processes
-      - uses: microsoft/powerplatform-actions/import-solution@v0
-        with:
-          environment-url: ${{ secrets.URL }}
-          app-id: ${{ secrets.CLIENT_ID }}
-          client-secret: ${{ secrets.CLIENT_SECRET }}
-          tenant-id: ${{ secrets.TENANT_ID }}
-          solution-file: melody_core.zip
-          run-asynchronously: true
-      - uses: microsoft/powerplatform-actions/import-solution@v0
-        with:
-          environment-url: ${{ secrets.URL }}
-          app-id: ${{ secrets.CLIENT_ID }}
-          client-secret: ${{ secrets.CLIENT_SECRET }}
-          tenant-id: ${{ secrets.TENANT_ID }}
-          solution-file: melody_processes.zip
-          run-asynchronously: true
+      - run: |
+          Install-Module Microsoft.Xrm.Data.PowerShell -Force
+          $conn = Get-CrmConnection -ConnectionString $env:CONNECTION_STRING
+          Invoke-CrmWhoAmI -conn $conn
+        shell: powershell
+        env:
+          CONNECTION_STRING: "AuthType=ClientSecret; TenantId=${{ secrets.TENANT_ID }}; ClientId=${{ secrets.CLIENT_ID }}; ClientSecret=${{ secrets.CLIENT_SECRET }}; Url=${{ secrets.URL }}"
+#      - uses: microsoft/powerplatform-actions/import-solution@v0
+#        with:
+#          environment-url: ${{ secrets.URL }}
+#          app-id: ${{ secrets.CLIENT_ID }}
+#          client-secret: ${{ secrets.CLIENT_SECRET }}
+#          tenant-id: ${{ secrets.TENANT_ID }}
+#          solution-file: melody_core.zip
+#          run-asynchronously: true
+#          import-as-holding: true
+#      - uses: microsoft/powerplatform-actions/import-solution@v0
+#        with:
+#          environment-url: ${{ secrets.URL }}
+#          app-id: ${{ secrets.CLIENT_ID }}
+#          client-secret: ${{ secrets.CLIENT_SECRET }}
+#          tenant-id: ${{ secrets.TENANT_ID }}
+#          solution-file: melody_processes.zip
+#          run-asynchronously: true
+#          import-as-holding: true

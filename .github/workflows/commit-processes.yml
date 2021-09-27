@@ -1,4 +1,4 @@
-name: Commit melody_processess
+name: Commit melody_processes
 
 on:
   workflow_dispatch:
@@ -6,9 +6,9 @@ on:
       commit-message:
         description: Message to associate to the git commit
         required: true
-        default: automated solution export/unpack/commit (melody_processess)
+        default: automated solution export/unpack/commit (melody_processes)
 
-concurrency: commit-melody_processess
+concurrency: commit-melody_processes
 
 jobs:
   export-managed:
@@ -21,14 +21,14 @@ jobs:
           app-id: ${{ secrets.CLIENT_ID }}
           client-secret: ${{ secrets.CLIENT_SECRET }}
           tenant-id: ${{ secrets.TENANT_ID }}
-          solution-name: melody_processess
-          solution-output-file: melody_processess_managed.zip
+          solution-name: melody_processes
+          solution-output-file: melody_processes_managed.zip
           managed: true
           run-asynchronously: true
       - uses: actions/upload-artifact@v2
         with:
           name: managed-solution
-          path: melody_processess_managed.zip
+          path: melody_processes_managed.zip
   export-unmanaged:
     runs-on: ubuntu-latest
     environment: development
@@ -39,14 +39,14 @@ jobs:
           app-id: ${{ secrets.CLIENT_ID }}
           client-secret: ${{ secrets.CLIENT_SECRET }}
           tenant-id: ${{ secrets.TENANT_ID }}
-          solution-name: melody_processess
-          solution-output-file: melody_processess.zip
+          solution-name: melody_processes
+          solution-output-file: melody_processes.zip
           managed: false
           run-asynchronously: true
       - uses: actions/upload-artifact@v2
         with:
           name: unmanaged-solution
-          path: melody_processess.zip
+          path: melody_processes.zip
   unpack-and-commit:
     runs-on: ubuntu-latest
     needs:
@@ -68,14 +68,14 @@ jobs:
           path: ${{ runner.temp }}
       - name: Clear current solution folder
         run: |
-          if [ -d melody_processess ]
+          if [ -d melody_processes ]
           then
-            rm melody_processess -rf
+            rm melody_processes -rf
           fi
       - uses: microsoft/powerplatform-actions/unpack-solution@v0
         with:
-          solution-file: ${{ runner.temp }}/melody_processess.zip
-          solution-folder: melody_processess
+          solution-file: ${{ runner.temp }}/melody_processes.zip
+          solution-folder: melody_processes
           solution-type: Both
       - name: Get version update action
         id: get-version-update-action
@@ -109,7 +109,7 @@ jobs:
         if: ${{ steps.get-version-update-action.outputs.action != null }}
         shell: pwsh
         run: |
-          $solutionXmlPath = "melody_processess/Other/Solution.xml"
+          $solutionXmlPath = "melody_processes/Other/Solution.xml"
           $solutionXml = New-Object xml
           $solutionXml.PreserveWhitespace = $true
           $solutionXml.Load($solutionXmlPath)
@@ -159,7 +159,7 @@ jobs:
             -EntityLogicalName solution `
             -FilterAttribute uniquename `
             -FilterOperator eq `
-            -FilterValue melody_processess `
+            -FilterValue melody_processes `
             -Fields @("solutionid")
           $solution = $results.CrmRecords[0]
           Set-CrmRecord `

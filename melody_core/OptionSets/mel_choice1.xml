@@ -11,14 +11,14 @@
     <Description description="" languagecode="1033" />
   </Descriptions>
   <options>
-    <option value="100000000">
-      <labels>
-        <label description="Option D" languagecode="1033" />
-      </labels>
-    </option>
     <option value="100000001">
       <labels>
         <label description="Option E" languagecode="1033" />
+      </labels>
+    </option>
+    <option value="100000002">
+      <labels>
+        <label description="Option F" languagecode="1033" />
       </labels>
     </option>
   </options>

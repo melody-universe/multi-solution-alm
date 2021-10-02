@@ -204,7 +204,7 @@ jobs:
           name: melody_core_Downgrade
       - name: Import melody_core
         uses: microsoft/powerplatform-actions/import-solution@v0
-        if: ${{ needs.get-deployment-plan.melody_core-action == 'update' }}
+        if: ${{ needs.get-deployment-plan.outputs.melody_core-action == 'update' }}
         with:
           environment-url: ${{ secrets.URL }}
           app-id: ${{ secrets.CLIENT_ID }}
@@ -214,7 +214,7 @@ jobs:
           run-asynchronously: true
       - name: Import melody_core_Downgrade
         uses: microsoft/powerplatform-actions/import-solution@v0
-        if: ${{ needs.get-deployment-plan.melody_core-action == 'downgrade' }}
+        if: ${{ needs.get-deployment-plan.outputs.melody_core-action == 'downgrade' }}
         with:
           environment-url: ${{ secrets.URL }}
           app-id: ${{ secrets.CLIENT_ID }}
@@ -224,17 +224,17 @@ jobs:
           run-asynchronously: true
       - name: Download melody_processes
         uses: actions/download-artifact@v2
-        if: ${{ !startsWith(needs.get-deployment-plan.melody_processes-action, 'skip') }}
+        if: ${{ !startsWith(needs.get-deployment-plan.outputs.melody_processes-action, 'skip') }}
         with:
           name: melody_processes
       - name: Download melody_processes_Downgrade
         uses: actions/download-artifact@v2
-        if: ${{ needs.get-deployment-plan.melody_processes-action == 'downgrade' }}
+        if: ${{ needs.get-deployment-plan.outputs.melody_processes-action == 'downgrade' }}
         with:
           name: melody_processes_Downgrade
       - name: Import melody_processes
         uses: microsoft/powerplatform-actions/import-solution@v0
-        if: ${{ needs.get-deployment-plan.melody_processes-action == 'update' }}
+        if: ${{ needs.get-deployment-plan.outputs.melody_processes-action == 'update' }}
         with:
           environment-url: ${{ secrets.URL }}
           app-id: ${{ secrets.CLIENT_ID }}
@@ -244,7 +244,7 @@ jobs:
           run-asynchronously: true
       - name: Import melody_processes_Downgrade
         uses: microsoft/powerplatform-actions/import-solution@v0
-        if: ${{ needs.get-deployment-plan.melody_processes-action == 'downgrade' }}
+        if: ${{ needs.get-deployment-plan.outputs.melody_processes-action == 'downgrade' }}
         with:
           environment-url: ${{ secrets.URL }}
           app-id: ${{ secrets.CLIENT_ID }}
@@ -258,7 +258,7 @@ jobs:
           npx fetch-power-platform-cli -p pac
           echo "pac" >> $GITHUB_PATH
       - name: Delete melody_processes
-        if: ${{ needs.get-deployment-plan.melody_processes-action == 'downgrade' }}
+        if: ${{ needs.get-deployment-plan.outputs.melody_processes-action == 'downgrade' }}
         run: |
           pac auth clear
           pac auth create \
@@ -275,7 +275,7 @@ jobs:
           TENANT_ID: ${{ secrets.TENANT_ID }}
       - name: Import melody_processes
         uses: microsoft/powerplatform-actions/import-solution@v0
-        if: ${{ needs.get-deployment-plan.melody_processes-action == 'downgrade' }}
+        if: ${{ needs.get-deployment-plan.outputs.melody_processes-action == 'downgrade' }}
         with:
           environment-url: ${{ secrets.URL }}
           app-id: ${{ secrets.CLIENT_ID }}
@@ -284,7 +284,7 @@ jobs:
           solution-file: melody_processes.zip
           run-asynchronously: true
       - name: Delete melody_processes_Downgrade
-        if: ${{ needs.get-deployment-plan.melody_processes-action == 'downgrade' }}
+        if: ${{ needs.get-deployment-plan.outputs.melody_processes-action == 'downgrade' }}
         run: |
           pac auth clear
           pac auth create \
@@ -300,7 +300,7 @@ jobs:
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
           TENANT_ID: ${{ secrets.TENANT_ID }}
       - name: Delete melody_core
-        if: ${{ needs.get-deployment-plan.melody_core-action == 'downgrade' }}
+        if: ${{ needs.get-deployment-plan.outputs.melody_core-action == 'downgrade' }}
         run: |
           pac auth clear
           pac auth create \
@@ -317,7 +317,7 @@ jobs:
           TENANT_ID: ${{ secrets.TENANT_ID }}
       - name: Import melody_core
         uses: microsoft/powerplatform-actions/import-solution@v0
-        if: ${{ needs.get-deployment-plan.melody_core-action == 'downgrade' }}
+        if: ${{ needs.get-deployment-plan.outputs.melody_core-action == 'downgrade' }}
         with:
           environment-url: ${{ secrets.URL }}
           app-id: ${{ secrets.CLIENT_ID }}
@@ -326,7 +326,7 @@ jobs:
           solution-file: melody_core.zip
           run-asynchronously: true
       - name: Delete melody_core_Downgrade
-        if: ${{ needs.get-deployment-plan.melody_core-action == 'downgrade' }}
+        if: ${{ needs.get-deployment-plan.outputs.melody_core-action == 'downgrade' }}
         run: |
           pac auth clear
           pac auth create \

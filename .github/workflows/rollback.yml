@@ -1,0 +1,65 @@
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: The branch, tag or SHA to rollback to
+        required: true
+
+concurrency: production
+
+jobs:
+  build-melody_core:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-solution-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.ref }}
+      - uses: microsoft/powerplatform-actions/pack-solution@v0
+        with:
+          solution-file: ${{ runner.temp }}/melody_core.zip
+          solution-folder: melody_core
+          solution-type: Managed
+      - uses: actions/upload-artifact@v2
+        with:
+          name: melody_core
+          path: ${{ runner.temp }}/melody_core.zip
+      - name: Get solution version
+        id: get-solution-version
+        run: |
+          $xml = New-Object xml
+          $xml.Load("melody_core/Other/Solution.xml")
+          $versionNode = $xml.SelectSingleNode("/ImportExportXml/SolutionManifest/Version")
+          $version = $versionNode.InnerText
+          Write-Host "Version: $version"
+          Write-Host "::set-output name=version::$version"
+        shell: pwsh
+  build-melody_processes:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-solution-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.ref }}
+      - uses: microsoft/powerplatform-actions/pack-solution@v0
+        with:
+          solution-file: ${{ runner.temp }}/melody_processes.zip
+          solution-folder: melody_processes
+          solution-type: Managed
+      - uses: actions/upload-artifact@v2
+        with:
+          name: melody_processes
+          path: ${{ runner.temp }}/melody_processes.zip
+      - name: Get solution version
+        id: get-solution-version
+        run: |
+          $xml = New-Object xml
+          $xml.Load("melody_processes/Other/Solution.xml")
+          $versionNode = $xml.SelectSingleNode("/ImportExportXml/SolutionManifest/Version")
+          $version = $versionNode.InnerText
+          Write-Host "::set-output name=version::$version"
+        shell: pwsh

@@ -11,3 +11,4 @@ runs:
     - run: |
         npx fetch-power-platform-cli -p ${{ inputs.location }}
         echo "${{ inputs.location }}" >> $GITHUB_PATH
+      shell: bash

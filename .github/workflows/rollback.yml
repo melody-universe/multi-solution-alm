@@ -19,7 +19,7 @@ jobs:
         run: |
           npx fetch-power-platform-cli -p pac
           pac/pac help
-          echo "./pac/pac" >> $GITHUB_PATH
+          echo "pac" >> $GITHUB_PATH
       - name: Test pac
         run: pac help
 #  get-deployment-plan:

@@ -13,6 +13,7 @@ runs:
         then
           echo "downloading pac"
           npx fetch-power-platform-cli -p ${{ inputs.location }}
+          ${{ inputs.location }}/pac telemetry disable
           echo "${{ inputs.location }}" >> $GITHUB_PATH
         fi
       shell: bash

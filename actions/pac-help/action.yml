@@ -1,0 +1,8 @@
+name: pac help
+description: "Execute the 'pac help' command"
+runs:
+  using: composite
+  steps:
+    - uses: ./actions/register-pac
+    - run: pac help
+      shell: bash

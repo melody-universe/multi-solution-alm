@@ -7,5 +7,5 @@ jobs:
   pac-help:
     runs-on: ubuntu-latest
     steps:
-      - uses: ${{ github.repository }}/actions/register-pac@${{ github.sha }}
-      - run: pac help
+      - uses: actions/checkout@v2
+      - uses: ./actions/pac-help

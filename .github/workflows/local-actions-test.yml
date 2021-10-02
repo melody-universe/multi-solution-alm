@@ -1,0 +1,11 @@
+name: Local Actions Test
+
+on:
+  push:
+
+jobs:
+  pac-help:
+    runs-on: ubuntu-latest
+    steps:
+      - using: ./actions/register-pac
+      - run: pac help

@@ -9,6 +9,10 @@ runs:
   using: composite
   steps:
     - run: |
-        npx fetch-power-platform-cli -p ${{ inputs.location }}
-        echo "${{ inputs.location }}" >> $GITHUB_PATH
+        if ! command -v pac &> /dev/null
+        then
+          echo "downloading pac"
+          npx fetch-power-platform-cli -p ${{ inputs.location }}
+          echo "${{ inputs.location }}" >> $GITHUB_PATH
+        fi
       shell: bash

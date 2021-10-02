@@ -9,4 +9,5 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ./actions/register-pac
+      - uses: ./actions/register-pac
       - run: pac help

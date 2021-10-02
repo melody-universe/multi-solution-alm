@@ -94,40 +94,66 @@ jobs:
         id: deployment-plan
         name: Get deployment plan
 
-#  build-melody_core:
-#    runs-on: ubuntu-latest
-#    needs: [get-deployment-plan]
-#    if: ${{ !startsWith(needs.get-deployment-plan.outputs.melody_core-action, 'skip') }}
-#    steps:
-#      - uses: actions/checkout@v2
-#        with:
-#          ref: ${{ github.event.inputs.ref }}
-#      - uses: microsoft/powerplatform-actions/pack-solution@v0
-#        with:
-#          solution-file: ${{ runner.temp }}/melody_core.zip
-#          solution-folder: melody_core
-#          solution-type: Managed
-#      - uses: actions/upload-artifact@v2
-#        with:
-#          name: melody_core
-#          path: ${{ runner.temp }}/melody_core.zip
-#  build-melody_processes:
-#    runs-on: ubuntu-latest
-#    needs: [get-deployment-plan]
-#    if: ${{ !startsWith(needs.get-deployment-plan.outputs.melody_processes-action, 'skip') }}
-#    steps:
-#      - uses: actions/checkout@v2
-#        with:
-#          ref: ${{ github.event.inputs.ref }}
-#      - uses: microsoft/powerplatform-actions/pack-solution@v0
-#        with:
-#          solution-file: ${{ runner.temp }}/melody_processes.zip
-#          solution-folder: melody_processes
-#          solution-type: Managed
-#      - uses: actions/upload-artifact@v2
-#        with:
-#          name: melody_processes
-#          path: ${{ runner.temp }}/melody_processes.zip
+  build-melody_core:
+    runs-on: ubuntu-latest
+    needs: [get-deployment-plan]
+    if: ${{ !startsWith(needs.get-deployment-plan.outputs.melody_core-action, 'skip') }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.ref }}
+      - uses: microsoft/powerplatform-actions/pack-solution@v0
+        with:
+          solution-file: ${{ runner.temp }}/melody_core.zip
+          solution-folder: melody_core
+          solution-type: Managed
+      - uses: actions/upload-artifact@v2
+        with:
+          name: melody_core
+          path: ${{ runner.temp }}/melody_core.zip
+
+  build-melody_core_Downgrade:
+    runs-on: ubuntu-latest
+    needs: [get-deployment-plan]
+    if: ${{ needs.get-deployment-plan.outputs.melody_core-action == 'downgrade' }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.ref }}
+      - shell: pwsh
+        run: |
+          $xml = New-Object xml
+          $xml.Load("melody_core/Other/Solution.xml")
+          $versionNode = $xml.SelectSingleNode("/ImportExportXml/SolutionManifest/UniqueName")
+          $versionNode.InnerText = "melody_core_Downgrade"
+          $xml.Save("melody_core/Other/Solution.xml")
+      - uses: microsoft/powerplatform-actions/pack-solution@v0
+        with:
+          solution-file: ${{ runner.temp }}/melody_core_Downgrade.zip
+          solution-folder: melody_core
+          solution-type: Managed
+      - uses: actions/upload-artifact@v2
+        with:
+          name: melody_core_Downgrade
+          path: ${{ runner.temp }}/melody_core_Downgrade.zip
+
+  build-melody_processes:
+    runs-on: ubuntu-latest
+    needs: [get-deployment-plan]
+    if: ${{ !startsWith(needs.get-deployment-plan.outputs.melody_processes-action, 'skip') }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.ref }}
+      - uses: microsoft/powerplatform-actions/pack-solution@v0
+        with:
+          solution-file: ${{ runner.temp }}/melody_processes.zip
+          solution-folder: melody_processes
+          solution-type: Managed
+      - uses: actions/upload-artifact@v2
+        with:
+          name: melody_processes
+          path: ${{ runner.temp }}/melody_processes.zip
 #  deploy:
 #    environment: production
 #    runs-on: windows-latest

@@ -1,5 +1,5 @@
 name: Register pac
-description: "Download the Power Platform CLI (pac) and add it to the system path"
+description: Download the Power Platform CLI (pac) and add it to the system path
 inputs:
   location:
     description: "Location to save pac to"

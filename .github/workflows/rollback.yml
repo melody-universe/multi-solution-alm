@@ -18,6 +18,7 @@ jobs:
 #        if: ${{ needs.get-deployment-plan.outputs.melody_core-action == 'downgrade' || needs.get-deployment-plan.outputs.melody_processes-action == 'downgrade'}}
         run: |
           npx fetch-power-platform-cli -p pac
+          pac/pac help
           echo "./pac/pac" >> $GITHUB_PATH
       - name: Test pac
         run: pac help

@@ -63,3 +63,122 @@ jobs:
           $version = $versionNode.InnerText
           Write-Host "::set-output name=version::$version"
         shell: pwsh
+  deploy:
+    environment: production
+    runs-on: windows-latest
+    needs:
+      - build-melody_core
+      - build-melody_processes
+    steps:
+      - run: |
+          function Get-ImportAction($compiledVersion, $deployedVersion) {
+            $compiledParts = $compiledVersion.Split(".")
+            $deployedParts = $deployedVersion.Split(".")
+            for($i = 0; $i -lt 4; $i++) {
+              if($deployedParts[$i] -lt $compiledParts[$i]) {
+                return "skip "  +
+                  "(warning: the deployed version of this solution is less than the compiled version, " +
+                  "implying that the compiled version is newer than the deployed one)"
+              } elseif($deployedParts[$i] -gt $compiledParts[$i]) {
+                if($i -ge 2) {
+                  return "update"
+                } else {
+                  return "downgrade"
+                }
+              }
+            }
+            return "skip"
+          }
+
+          Install-Module Microsoft.Xrm.Data.PowerShell -Force
+          $conn = Get-CrmConnection -ConnectionString $env:CONNECTION_STRING
+          $solutions = Get-CrmRecordsByFetch `
+            -conn $conn `
+            -Fetch ( `
+              "<fetch>" +
+                "<entity name=`"solution`">" +
+                  "<attribute name=`"uniquename`" />" +
+                  "<attribute name=`"version`" />" +
+                  "<filter>" +
+                    "<condition attribute=`"uniquename`" operator=`"in`">" +
+                      "<value>melody_core</value>" +
+                      "<value>melody_processes</value>" +
+                    "</condition>" +
+                  "</filter>" +
+                "</entity>" +
+              "</fetch>"
+            )
+          $solutions.CrmRecords | ForEach-Object {
+            $solution = $_
+            $compiledVersion = [Environment]::GetEnvironmentVariable("$($solution.uniquename)_VERSION")
+            $deployedVersion = $solution.version
+            Write-Host "$($solution.uniquename):"
+            Write-Host "  compiled solution version: $compiledVersion"
+            Write-Host "  currently deployed solution version: $deployedVersion"
+            $importAction = Get-ImportAction $compiledVersion $deployedVersion
+            if($importAction -eq "warning") {
+              $importAct
+            }
+            Write-Host "  import action: $importAction"
+            Write-Host "::set-output name=$($solution.uniquename)-action::$importAction"
+            Write-Host "::set-output name=$($solution.uniquename)-holding::$($importAction -eq "upgrade")"
+          }
+        shell: powershell
+        env:
+          CONNECTION_STRING: "AuthType=ClientSecret; TenantId=${{ secrets.TENANT_ID }}; ClientId=${{ secrets.CLIENT_ID }}; ClientSecret=${{ secrets.CLIENT_SECRET }}; Url=${{ secrets.URL }}"
+          melody_core_VERSION: ${{ needs.build-melody_core.outputs.version }}
+          melody_processes_VERSION: ${{ needs.build-melody_processes.outputs.version }}
+        id: deployment-plan
+        name: Get deployment plan
+#      - name: Download melody_core
+#        uses: actions/download-artifact@v2
+#        if: ${{ steps.deployment-plan.outputs.melody_core-action != 'skip' }}
+#        with:
+#          name: melody_core
+#      - name: Import melody_core
+#        uses: microsoft/powerplatform-actions/import-solution@v0
+#        if: ${{ steps.deployment-plan.outputs.melody_core-action != 'skip' }}
+#        with:
+#          environment-url: ${{ secrets.URL }}
+#          app-id: ${{ secrets.CLIENT_ID }}
+#          client-secret: ${{ secrets.CLIENT_SECRET }}
+#          tenant-id: ${{ secrets.TENANT_ID }}
+#          solution-file: melody_core.zip
+#          run-asynchronously: true
+#          import-as-holding: ${{ steps.deployment-plan.outputs.melody_core-holding }}
+#      - name: Download melody_processes
+#        uses: actions/download-artifact@v2
+#        if: ${{ steps.deployment-plan.outputs.melody_processes-action != 'skip' }}
+#        with:
+#          name: melody_processes
+#      - name: Import melody_processes
+#        uses: microsoft/powerplatform-actions/import-solution@v0
+#        if: ${{ steps.deployment-plan.outputs.melody_processes-action != 'skip' }}
+#        with:
+#          environment-url: ${{ secrets.URL }}
+#          app-id: ${{ secrets.CLIENT_ID }}
+#          client-secret: ${{ secrets.CLIENT_SECRET }}
+#          tenant-id: ${{ secrets.TENANT_ID }}
+#          solution-file: melody_processes.zip
+#          run-asynchronously: true
+#          import-as-holding: ${{ steps.deployment-plan.outputs.melody_processes-holding }}
+#      - name: Upgrade melody_processes
+#        uses: microsoft/powerplatform-actions/upgrade-solution@v0
+#        if: ${{ steps.deployment-plan.outputs.melody_processes-action == 'upgrade' }}
+#        with:
+#          environment-url: ${{ secrets.URL }}
+#          app-id: ${{ secrets.CLIENT_ID }}
+#          client-secret: ${{ secrets.CLIENT_SECRET }}
+#          tenant-id: ${{ secrets.TENANT_ID }}
+#          solution-name: melody_processes
+#          async: true
+#      - name: Upgrade melody_core
+#        uses: microsoft/powerplatform-actions/upgrade-solution@v0
+#        if: ${{ steps.deployment-plan.outputs.melody_core-action == 'upgrade' }}
+#        with:
+#          environment-url: ${{ secrets.URL }}
+#          app-id: ${{ secrets.CLIENT_ID }}
+#          client-secret: ${{ secrets.CLIENT_SECRET }}
+#          tenant-id: ${{ secrets.TENANT_ID }}
+#          solution-name: melody_core
+#          async: true

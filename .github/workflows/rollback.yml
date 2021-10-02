@@ -6,6 +6,7 @@ on:
       ref:
         description: The branch, tag or SHA to rollback to
         required: true
+        default: 183f11f722801f41dd1ea72414afbb6bf6bcda0a
 
 concurrency: production
 

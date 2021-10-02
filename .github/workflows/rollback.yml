@@ -253,12 +253,12 @@ jobs:
 #          solution-file: melody_processes_Downgrade.zip
 #          run-asynchronously: true
       - name: Download pac
-        if: ${{ needs.get-deployment-plan.outputs.melody_core-action == 'downgrade' || needs.get-deployment-plan.outputs.melody_processes-action == 'downgrade'}}
+#        if: ${{ needs.get-deployment-plan.outputs.melody_core-action == 'downgrade' || needs.get-deployment-plan.outputs.melody_processes-action == 'downgrade'}}
         run: |
           npx fetch-power-platform-cli -p pac
           echo "pac" >> $GITHUB_PATH
       - name: Pac who?
-        if: ${{ steps.deployment-plan.outputs.melody_processes-action == 'downgrade' }}
+#        if: ${{ steps.deployment-plan.outputs.melody_processes-action == 'downgrade' }}
         run: |
           pac auth clear
           pac auth create \

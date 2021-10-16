@@ -83,12 +83,12 @@ runs:
         fi
 
     - id: set-version
-      if: ${{ steps.get-version-update-action.outputs.action != null }}
       shell: pwsh
       env:
         ACTION: ${{ steps.get-version-update-action.outputs.action }}
         SOLUTION_NAME: ${{ inputs.solution-name }}
       run: |
+        if [ -z "$ACTION" ]; then exit; fi
         $solutionXmlPath = "$env:SOLUTION_NAME/Other/Solution.xml"
         $solutionXml = New-Object xml
         $solutionXml.PreserveWhitespace = $true

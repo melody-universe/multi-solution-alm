@@ -2,8 +2,13 @@ name: pac auth
 description: Authenticate to Dataverse using the Power Platform CLI (pac)
 inputs:
   solution-name:
-    description: "Name of teh solution to export"
+    description: "Name of the solution to export"
     required: true
+  message:
+    description: "The message for the commit"
+    required: false
+    default: automated solution export/unpack/commit (${{ inputs.solution-name }})
+
 runs:
   using: composite
   steps:
@@ -31,3 +36,8 @@ runs:
           --allowDelete \
           --allowWrite
       shell: bash
+    - name: commit
+      run: |
+        echo $MESSAGE
+      env:
+        MESSAGE: ${{ inputs.message }}

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       commit-message:
-        description: The message for the commit
+        description: Commit message
 
 concurrency: commit-melody_core
 

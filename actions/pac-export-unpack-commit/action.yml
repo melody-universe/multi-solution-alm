@@ -88,7 +88,7 @@ runs:
         ACTION: ${{ steps.get-version-update-action.outputs.action }}
         SOLUTION_NAME: ${{ inputs.solution-name }}
       run: |
-        if ([string]::IsNullOrEmpty($env:ACTION) {
+        if ([string]::IsNullOrEmpty($env:ACTION)) {
           exit
         }
         $solutionXmlPath = "$env:SOLUTION_NAME/Other/Solution.xml"

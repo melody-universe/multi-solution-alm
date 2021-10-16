@@ -11,7 +11,7 @@ inputs:
 runs:
   using: composite
   steps:
-#    - uses: ./actions/register-pac
+    - uses: ./actions/register-pac
 
     - id: get-message
       shell: bash
@@ -28,35 +28,32 @@ runs:
           echo "::set-output name=message::$MESSAGE"
         } fi
 
-#    - id: export
-#      shell: bash
-#      run: |
-#        pac solution export \
-#          --path ${{ runner.temp }}/${{ inputs.solution-name }}.zip \
-#          --name ${{ inputs.solution-name }} \
-#          --async &
-#
-#        pac solution export \
-#          --path ${{ runner.temp }}/${{ inputs.solution-name }}_managed.zip \
-#          --name ${{ inputs.solution-name }} \
-#          --managed \
-#          --async &
-#
-#        wait
-#
-#    - id: unpack
-#      shell: bash
-#      run: |
-#        pac solution unpack \
-#          --zipfile ${{ runner.temp }}/${{ inputs.solution-name }}.zip \
-#          --folder ${{ inputs.solution-name }} \
-#          --packagetype Both \
-#          --allowDelete \
-#          --allowWrite
-
-    - id: commit
+    - id: export
       shell: bash
       run: |
-        echo $MESSAGE
-      env:
-        MESSAGE: ${{ steps.get-message.outputs.message }}
+        pac solution export \
+          --path ${{ runner.temp }}/${{ inputs.solution-name }}.zip \
+          --name ${{ inputs.solution-name }} \
+          --async &
+
+        pac solution export \
+          --path ${{ runner.temp }}/${{ inputs.solution-name }}_managed.zip \
+          --name ${{ inputs.solution-name }} \
+          --managed \
+          --async &
+
+        wait
+
+    - id: unpack
+      shell: bash
+      run: |
+        pac solution unpack \
+          --zipfile ${{ runner.temp }}/${{ inputs.solution-name }}.zip \
+          --folder ${{ inputs.solution-name }} \
+          --packagetype Both \
+          --allowDelete \
+          --allowWrite
+
+    - uses: EndBug/add-and-commit@v7
+      with:
+        message: ${{ steps.get-message.outputs.message }}

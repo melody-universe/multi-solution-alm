@@ -5,8 +5,6 @@ on:
     inputs:
       commit-message:
         description: The message for the commit
-        required: true
-        default: automated solution export/unpack/commit (melody_core)
 
 concurrency: commit-melody_core
 
@@ -16,12 +14,12 @@ jobs:
     environment: development
     steps:
       - uses: actions/checkout@v2
-#      - uses: ./actions/pac-auth
-#        with:
-#          environment-url: ${{ secrets.URL }}
-#          app-id: ${{ secrets.CLIENT_ID }}
-#          client-secret: ${{ secrets.CLIENT_SECRET }}
-#          tenant-id: ${{ secrets.TENANT_ID }}
+      - uses: ./actions/pac-auth
+        with:
+          environment-url: ${{ secrets.URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
       - uses: ./actions/pac-export-unpack-commit
         with:
           solution-name: melody_core

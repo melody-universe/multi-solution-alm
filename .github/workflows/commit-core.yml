@@ -16,12 +16,12 @@ jobs:
     environment: development
     steps:
       - uses: actions/checkout@v2
-      - uses: ./actions/pac-auth
-        with:
-          environment-url: ${{ secrets.URL }}
-          app-id: ${{ secrets.CLIENT_ID }}
-          client-secret: ${{ secrets.CLIENT_SECRET }}
-          tenant-id: ${{ secrets.TENANT_ID }}
+#      - uses: ./actions/pac-auth
+#        with:
+#          environment-url: ${{ secrets.URL }}
+#          app-id: ${{ secrets.CLIENT_ID }}
+#          client-secret: ${{ secrets.CLIENT_SECRET }}
+#          tenant-id: ${{ secrets.TENANT_ID }}
       - uses: ./actions/pac-export-unpack-commit
         with:
           solution-name: melody_core

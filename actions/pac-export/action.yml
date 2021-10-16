@@ -1,0 +1,24 @@
+name: pac auth
+description: Authenticate to Dataverse using the Power Platform CLI (pac)
+inputs:
+  solution-name:
+    description: "Name of teh solution to export"
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: ./actions/register-pac
+    - run: |
+        pac solution export \
+          --path ${{ runner.temp }}/${{ inputs.solution-name }}.zip \
+          --name ${{ inputs.solution-name }} \
+          --async &
+
+        pac solution export \
+          --path ${{ runner.temp }}/${{ inputs.solution-name }}_managed.zip \
+          --name ${{ inputs.solution-name }} \
+          --managed \
+          --async &
+
+        wait
+      shell: bash

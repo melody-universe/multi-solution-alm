@@ -12,7 +12,7 @@ runs:
         if ! command -v pac &> /dev/null
         then
           echo "downloading pac"
-          npx fetch-power-platform-cli -p ${{ inputs.location }}
+          npx pac-fetch -p ${{ inputs.location }}
           ${{ inputs.location }}/pac telemetry disable
           echo "${{ inputs.location }}" >> $GITHUB_PATH
         fi

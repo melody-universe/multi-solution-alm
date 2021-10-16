@@ -21,4 +21,9 @@ runs:
           --async &
 
         wait
+
+        pac solution unpack \
+          --zipfile ${{ runner.temp }}/${{ inputs.solution-name }}.zip \
+          --folder ${{ inputs.solution-name }} \
+          --packagetype Both
       shell: bash

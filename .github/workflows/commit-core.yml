@@ -11,7 +11,7 @@ on:
 concurrency: commit-melody_core
 
 jobs:
-  export:
+  export-unpack-commit:
     runs-on: ubuntu-latest
     environment: development
     steps:
@@ -22,7 +22,7 @@ jobs:
           app-id: ${{ secrets.CLIENT_ID }}
           client-secret: ${{ secrets.CLIENT_SECRET }}
           tenant-id: ${{ secrets.TENANT_ID }}
-      - uses: ./actions/pac-export
+      - uses: ./actions/pac-export-unpack
         with:
           solution-name: melody_core
 #  export-managed:

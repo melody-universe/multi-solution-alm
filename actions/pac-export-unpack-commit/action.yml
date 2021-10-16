@@ -7,13 +7,25 @@ inputs:
   message:
     description: "The message for the commit"
     required: false
-    default: automated solution export/unpack/commit (${{ inputs.solution-name }})
 
 runs:
   using: composite
   steps:
     - uses: ./actions/register-pac
-    - name: export
+
+    - id: get-message
+      shell: bash
+      env:
+        MESSAGE: ${{ inputs.message }}
+        SOLUTION_NAME: ${{ inputs.solution-name }}
+      run: |
+        if [ -z "$MESSAGE" ];
+          then echo "::set-output name=message::automated solution export/unpack/commit ($SOLUTION_NAME)";
+          else echo "::set-output name=message::$MESSAGE";
+        fi
+
+    - id: export
+      shell: bash
       run: |
         pac solution export \
           --path ${{ runner.temp }}/${{ inputs.solution-name }}.zip \
@@ -27,7 +39,9 @@ runs:
           --async &
 
         wait
-    - name: unpack
+
+    - id: unpack
+      shell: bash
       run: |
         pac solution unpack \
           --zipfile ${{ runner.temp }}/${{ inputs.solution-name }}.zip \
@@ -35,9 +49,10 @@ runs:
           --packagetype Both \
           --allowDelete \
           --allowWrite
+
+    - id: commit
       shell: bash
-    - name: commit
       run: |
         echo $MESSAGE
       env:
-        MESSAGE: ${{ inputs.message }}
+        MESSAGE: ${{ steps.get-message.message }}

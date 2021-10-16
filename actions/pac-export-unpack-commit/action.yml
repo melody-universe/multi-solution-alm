@@ -59,4 +59,4 @@ runs:
       run: |
         echo $MESSAGE
       env:
-        MESSAGE: ${{ steps.get-message.message }}
+        MESSAGE: ${{ steps.get-message.outputs.message }}

@@ -8,7 +8,8 @@ runs:
   using: composite
   steps:
     - uses: ./actions/register-pac
-    - run: |
+    - name: export
+      run: |
         pac solution export \
           --path ${{ runner.temp }}/${{ inputs.solution-name }}.zip \
           --name ${{ inputs.solution-name }} \
@@ -21,9 +22,12 @@ runs:
           --async &
 
         wait
-
+    - name: unpack
+      run: |
         pac solution unpack \
           --zipfile ${{ runner.temp }}/${{ inputs.solution-name }}.zip \
           --folder ${{ inputs.solution-name }} \
-          --packagetype Both
+          --packagetype Both \
+          --allowDelete \
+          --allowWrite
       shell: bash

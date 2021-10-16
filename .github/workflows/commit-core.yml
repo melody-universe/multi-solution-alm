@@ -22,6 +22,7 @@ jobs:
           tenant-id: ${{ secrets.TENANT_ID }}
       - uses: ./actions/pac-export-unpack-commit
         with:
+          message: ${{ github.event.inputs.commit-message }}
           solution-name: melody_core
 #  export-managed:
 #    runs-on: ubuntu-latest

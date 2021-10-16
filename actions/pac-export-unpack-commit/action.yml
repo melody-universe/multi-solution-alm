@@ -19,36 +19,40 @@ runs:
         MESSAGE: ${{ inputs.message }}
         SOLUTION_NAME: ${{ inputs.solution-name }}
       run: |
-        if [ -z "$MESSAGE" ];
-          then echo "::set-output name=message::automated solution export/unpack/commit ($SOLUTION_NAME)";
-          else echo "::set-output name=message::$MESSAGE";
-        fi
+        echo "MESSAGE = $MESSAGE"
+        if [ -z "$MESSAGE" ]; then {
+          echo "message is null. setting it to a default..."
+          echo "::set-output name=message::automated solution export/unpack/commit ($SOLUTION_NAME)"
+        } else {
+          echo "message has a value. setting it as the output to this step"
+          echo "::set-output name=message::$MESSAGE"
+        } fi
 
-    - id: export
-      shell: bash
-      run: |
-        pac solution export \
-          --path ${{ runner.temp }}/${{ inputs.solution-name }}.zip \
-          --name ${{ inputs.solution-name }} \
-          --async &
-
-        pac solution export \
-          --path ${{ runner.temp }}/${{ inputs.solution-name }}_managed.zip \
-          --name ${{ inputs.solution-name }} \
-          --managed \
-          --async &
-
-        wait
-
-    - id: unpack
-      shell: bash
-      run: |
-        pac solution unpack \
-          --zipfile ${{ runner.temp }}/${{ inputs.solution-name }}.zip \
-          --folder ${{ inputs.solution-name }} \
-          --packagetype Both \
-          --allowDelete \
-          --allowWrite
+#    - id: export
+#      shell: bash
+#      run: |
+#        pac solution export \
+#          --path ${{ runner.temp }}/${{ inputs.solution-name }}.zip \
+#          --name ${{ inputs.solution-name }} \
+#          --async &
+#
+#        pac solution export \
+#          --path ${{ runner.temp }}/${{ inputs.solution-name }}_managed.zip \
+#          --name ${{ inputs.solution-name }} \
+#          --managed \
+#          --async &
+#
+#        wait
+#
+#    - id: unpack
+#      shell: bash
+#      run: |
+#        pac solution unpack \
+#          --zipfile ${{ runner.temp }}/${{ inputs.solution-name }}.zip \
+#          --folder ${{ inputs.solution-name }} \
+#          --packagetype Both \
+#          --allowDelete \
+#          --allowWrite
 
     - id: commit
       shell: bash

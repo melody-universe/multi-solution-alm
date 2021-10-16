@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       commit-message:
-        description: Message to associate to the git commit
+        description: The message for the commit
         required: true
         default: automated solution export/unpack/commit (melody_core)
 
@@ -22,7 +22,7 @@ jobs:
           app-id: ${{ secrets.CLIENT_ID }}
           client-secret: ${{ secrets.CLIENT_SECRET }}
           tenant-id: ${{ secrets.TENANT_ID }}
-      - uses: ./actions/pac-export-unpack
+      - uses: ./actions/pac-export-unpack-commit
         with:
           solution-name: melody_core
 #  export-managed:

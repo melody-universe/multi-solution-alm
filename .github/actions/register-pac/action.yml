@@ -18,6 +18,12 @@ runs:
             "Windows" { "Microsoft.PowerApps.CLI" }
           }
           Write-Host "package id: $packageId"
+          $packageInfo = Invoke-WebRequest `
+            "https://api.nuget.org/v3/registration5-semver1/$(
+                $packageId.ToLower()
+              )/index.json"
+          $latestVersion = $packageInfo.items[0].upper
+          Write-Host "latest version: $latestVersion"
         }
         <#
         if ! command -v pac &> /dev/null

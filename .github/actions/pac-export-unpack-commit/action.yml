@@ -146,6 +146,7 @@ runs:
         Write-Host "::set-output name=version::$newVersion"
         $versionNode.InnerText = $newVersion
         $solutionXml.Save($solutionXmlPath)
+        cat $solutionXmlPath
 
     - uses: EndBug/add-and-commit@v7
       with:

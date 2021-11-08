@@ -28,21 +28,19 @@ runs:
 
           Invoke-WebRequest `
             -Uri "https://api.nuget.org/v3-flatcontainer/$id/$version/$id.$version.nupkg" `
-            -OutFile "${{ runner.temp }}/$packageId.nupkg"
+            -OutFile "${{ runner.temp }}/$packageId.nupkg" `
+            | Out-Null
           Write-Host "downloaded $packageId.nupkg"
 
           Expand-Archive "${{ runner.temp }}/$packageId.nupkg" "${{ runner.temp }}/$packageId"
-          
-          cd "${{ runner.temp }}"
-          ls -R
-        }
-        <#
-        if ! command -v pac &> /dev/null
-        then
-          echo "downloading pac"
-          npx pac-fetch -p ${{ inputs.location }}
+          Write-Host "extracted to $packageId"
+
+          Copy-Item "${{ runner.temp }}/$packageId/tools" "${{ inputs.location }}"
+          Write-Host "copied tools subfolder to ${{ inputs.location }}"
+
           ${{ inputs.location }}/pac telemetry disable
-          echo "${{ inputs.location }}" >> $GITHUB_PATH
-        fi
-        #>
+
+          Write-Host "${{ inputs.location }}" >> $GITHUB_PATH
+          Write-Host "added ${{ inputs.location }} to system path"
+        }
       shell: pwsh

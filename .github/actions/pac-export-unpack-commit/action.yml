@@ -32,10 +32,10 @@ runs:
   steps:
     - uses: ./github/actions/pac-auth
       with:
-        environment-url: ${{ secrets.URL }}
-        app-id: ${{ secrets.CLIENT_ID }}
-        client-secret: ${{ secrets.CLIENT_SECRET }}
-        tenant-id: ${{ secrets.TENANT_ID }}
+        environment-url: ${{ inputs.environment-url }}
+        app-id: ${{ inputs.app-id }}
+        client-secret: ${{ inputs.client-secret }}
+        tenant-id: ${{ inputs.tenant-id }}
 
     - id: get-message
       shell: bash

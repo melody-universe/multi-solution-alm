@@ -50,7 +50,7 @@ runs:
     - run: |
         if ! command -v pac &> /dev/null
         then
-          if [[ ${{ runner.os }} !== "Windows" ]]
+          if [[ "${{ runner.os }}" != "Windows" ]]
           then
               chmod 777 "${{ inputs.location }}/pac"
               ${{ inputs.location }}/pac telemetry disable

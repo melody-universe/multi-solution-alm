@@ -46,6 +46,12 @@ runs:
     - run: |
         if ! command -v pac &> /dev/null
         then
+          if [[ ${{ runner.os }} == "Windows" ]]
+          then
+            chmod 777 "${{ inputs.location }}/pac.exe"
+          else
+            chmod 777 "${{ inputs.location }}/pac"
+          fi
           ${{ inputs.location }}/pac telemetry disable
           echo "${{ inputs.location }}" >> $GITHUB_PATH
           echo "added ${{ inputs.location }} to system path"

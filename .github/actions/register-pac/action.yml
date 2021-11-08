@@ -12,10 +12,12 @@ runs:
         if (!(Get-Command pac -ErrorAction Ignore))
         {
           Write-Host "downloading pac..."
-          Write-Host ([System.Environment]::OSVersion.Platform)
-          $packageId = switch([System.Environment]::OSVersion.Platform) {
-            "Win32NT" { "Microsoft.PowerApps.CLI" }
+          $packageId = switch("${{ runner.os }}") {
+            "Linux" { "Microsoft.PowerApps.CLI.Core.linux-x64" }
+            "macOS" { "Microsoft.PowerApps.CLI.Core.osx-x64" }
+            "Windows" { "Microsoft.PowerApps.CLI" }
           }
+          Write-Host "package id: $packageId"
         }
         <#
         if ! command -v pac &> /dev/null

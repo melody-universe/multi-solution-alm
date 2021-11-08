@@ -32,10 +32,16 @@ runs:
             | Out-Null
           Write-Host "downloaded $packageId.nupkg"
 
-          Expand-Archive "${{ runner.temp }}/$packageId.nupkg" "${{ runner.temp }}/$packageId"
+          Expand-Archive `
+            "${{ runner.temp }}/$packageId.nupkg" `
+            "${{ runner.temp }}/$packageId" `
+            | Out-Null
           Write-Host "extracted to $packageId"
 
-          Copy-Item "${{ runner.temp }}/$packageId/tools" "${{ inputs.location }}"
+          Copy-Item `
+            "${{ runner.temp }}/$packageId/tools" `
+            "${{ inputs.location }}" `
+            -Recurse
           Write-Host "copied tools subfolder to ${{ inputs.location }}"
 
           cd "${{ runner.temp }}"

@@ -41,18 +41,19 @@ runs:
             "${{ inputs.location }}" `
             -Recurse
           Write-Host "copied tools subfolder to ${{ inputs.location }}"
+
+          if ("${{ runner.os }}" -eq "Windows") {
+            ${{ inputs.location }}/pac telemetry disable
+          }
         }
       shell: pwsh
     - run: |
         if ! command -v pac &> /dev/null
         then
-          if [[ ${{ runner.os }} == "Windows" ]]
+          if [[ ${{ runner.os }} !== "Windows" ]]
           then
-            chmod 777 "${{ inputs.location }}/pac.exe"
-            ${{ inputs.location }}/pac.exe telemetry disable
-          else
-            chmod 777 "${{ inputs.location }}/pac"
-            ${{ inputs.location }}/pac telemetry disable
+              chmod 777 "${{ inputs.location }}/pac"
+              ${{ inputs.location }}/pac telemetry disable
           fi
           echo "${{ inputs.location }}" >> $GITHUB_PATH
           echo "added ${{ inputs.location }} to system path"

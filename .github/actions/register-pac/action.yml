@@ -44,7 +44,7 @@ runs:
 
           ${{ inputs.location }}/pac telemetry disable
 
-          Write-Host "${{ inputs.location }}" >> $GITHUB_PATH
+          echo "${{ inputs.location }}" >> $GITHUB_PATH
           Write-Host "added ${{ inputs.location }} to system path"
         }
       shell: pwsh

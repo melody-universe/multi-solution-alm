@@ -9,6 +9,12 @@ runs:
   using: composite
   steps:
     - run: |
+        if (!(Get-Command pac -ErrorAction Ignore))
+        {
+          Write-Host "downloading pac..."
+          Write-Host ([System.Environment]::OSVersion.Platform)
+        }
+        /*
         if ! command -v pac &> /dev/null
         then
           echo "downloading pac"
@@ -16,4 +22,5 @@ runs:
           ${{ inputs.location }}/pac telemetry disable
           echo "${{ inputs.location }}" >> $GITHUB_PATH
         fi
-      shell: bash
+        */
+      shell: pwsh

@@ -28,14 +28,12 @@ runs:
 
           Invoke-WebRequest `
             -Uri "https://api.nuget.org/v3-flatcontainer/$id/$version/$id.$version.nupkg" `
-            -OutFile "${{ runner.temp }}/$packageId.nupkg" `
-            | Out-Null
+            -OutFile "${{ runner.temp }}/$packageId.nupkg"
           Write-Host "downloaded $packageId.nupkg"
 
           Expand-Archive `
             "${{ runner.temp }}/$packageId.nupkg" `
-            "${{ runner.temp }}/$packageId" `
-            | Out-Null
+            "${{ runner.temp }}/$packageId"
           Write-Host "extracted to $packageId"
 
           Copy-Item `
@@ -43,9 +41,6 @@ runs:
             "${{ inputs.location }}" `
             -Recurse
           Write-Host "copied tools subfolder to ${{ inputs.location }}"
-
-          cd "${{ runner.temp }}"
-          ls -R
 
           ${{ inputs.location }}/pac telemetry disable
 

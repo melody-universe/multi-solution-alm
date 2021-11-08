@@ -4,171 +4,21 @@ on:
   workflow_dispatch:
     inputs:
       commit-message:
-        description: Message to associate to the git commit
-        required: true
-        default: automated solution export/unpack/commit (melody_processes)
+        description: Commit message
 
 concurrency: commit-melody_processes
 
 jobs:
-  export-managed:
-    runs-on: ubuntu-latest
+  export-unpack-commit:
+    runs-on: windows-latest
     environment: development
-    steps:
-      - uses: microsoft/powerplatform-actions/export-solution@v0
-        with:
-          environment-url: ${{ secrets.URL }}
-          app-id: ${{ secrets.CLIENT_ID }}
-          client-secret: ${{ secrets.CLIENT_SECRET }}
-          tenant-id: ${{ secrets.TENANT_ID }}
-          solution-name: melody_processes
-          solution-output-file: melody_processes_managed.zip
-          managed: true
-          run-asynchronously: true
-      - uses: actions/upload-artifact@v2
-        with:
-          name: managed-solution
-          path: melody_processes_managed.zip
-  export-unmanaged:
-    runs-on: ubuntu-latest
-    environment: development
-    steps:
-      - uses: microsoft/powerplatform-actions/export-solution@v0
-        with:
-          environment-url: ${{ secrets.URL }}
-          app-id: ${{ secrets.CLIENT_ID }}
-          client-secret: ${{ secrets.CLIENT_SECRET }}
-          tenant-id: ${{ secrets.TENANT_ID }}
-          solution-name: melody_processes
-          solution-output-file: melody_processes.zip
-          managed: false
-          run-asynchronously: true
-      - uses: actions/upload-artifact@v2
-        with:
-          name: unmanaged-solution
-          path: melody_processes.zip
-  unpack-and-commit:
-    runs-on: ubuntu-latest
-    needs:
-      - export-managed
-      - export-unmanaged
-    outputs:
-      version: ${{ steps.set-version.outputs.version }}
     steps:
       - uses: actions/checkout@v2
-      - name: Download managed solution
-        uses: actions/download-artifact@v2
+      - uses: ./.github/actions/pac-export-unpack-commit
         with:
-          name: managed-solution
-          path: ${{ runner.temp }}
-      - name: Download unmanaged solution
-        uses: actions/download-artifact@v2
-        with:
-          name: unmanaged-solution
-          path: ${{ runner.temp }}
-      - name: Clear current solution folder
-        run: |
-          if [ -d melody_processes ]
-          then
-            rm melody_processes -rf
-          fi
-      - uses: microsoft/powerplatform-actions/unpack-solution@v0
-        with:
-          solution-file: ${{ runner.temp }}/melody_processes.zip
-          solution-folder: melody_processes
-          solution-type: Both
-      - name: Get version update action
-        id: get-version-update-action
-        run: |
-          message=${MESSAGE,,}
-          if [[ $message =~ ^major:.*$ ]]
-          then
-            action="major"
-          elif [[ $message =~ ^minor:.*$ ]]
-          then
-            action="minor"
-          elif [[ $message =~ ^build:.*$ ]]
-          then
-            action="build"
-          elif [[ $message =~ ^revision:.*$ || $(git diff --numstat | wc -l) -gt 0 ]]
-          then
-            action="revision"
-          else
-            echo "no version update action found"
-          fi
-
-          if [[ ! -z ${action+x} ]]
-          then
-            echo "version update action: $action"
-            echo "::set-output name=action::$action"
-          fi
-        env:
-          MESSAGE: ${{ github.event.inputs.commit-message }}
-      - name: Set version
-        id: set-version
-        if: ${{ steps.get-version-update-action.outputs.action != null }}
-        shell: pwsh
-        run: |
-          $solutionXmlPath = "melody_processes/Other/Solution.xml"
-          $solutionXml = New-Object xml
-          $solutionXml.PreserveWhitespace = $true
-          $solutionXml.Load($solutionXmlPath)
-          $versionNode = $solutionXml.SelectSingleNode("/ImportExportXml/SolutionManifest/Version")
-          $version = $versionNode.InnerText
-          $parts = $version.Split(".") | ForEach-Object { [int]::Parse($_) }
-          switch($env:ACTION) {
-            "major" {
-              $parts[0]++
-              $parts[1] = $parts[2] = $parts[3] = 0
-            }
-            "minor" {
-              $parts[1]++
-              $parts[2] = $parts[3] = 0
-            }
-            "build" {
-              $parts[2]++
-              $parts[3] = 0
-            }
-            "revision" {
-              $parts[3]++
-            }
-          }
-          $newVersion = [string]::Join(".", $parts)
-          Write-Host "Changing version from $version to $newVersion"
-          Write-Host "::set-output name=version::$newVersion"
-          $versionNode.InnerText = $newVersion
-          $solutionXml.Save($solutionXmlPath)
-        env:
-          ACTION: ${{ steps.get-version-update-action.outputs.action }}
-      - uses: EndBug/add-and-commit@v7
-        with:
+          environment-url: ${{ secrets.URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-name: melody_processes
           message: ${{ github.event.inputs.commit-message }}
-  update-dev-version:
-    runs-on: windows-latest
-    needs: [unpack-and-commit]
-    if: ${{ needs.unpack-and-commit.outputs.version != null }}
-    environment: development
-    steps:
-      - name: Update dev version
-        shell: powershell
-        run: |
-          Install-Module Microsoft.Xrm.Data.PowerShell -Force
-          $conn = Get-CrmConnection -ConnectionString $env:CONNECTION_STRING
-          $results = Get-CrmRecords `
-            -conn $conn `
-            -EntityLogicalName solution `
-            -FilterAttribute uniquename `
-            -FilterOperator eq `
-            -FilterValue melody_processes `
-            -Fields @("solutionid")
-          $solution = $results.CrmRecords[0]
-          Set-CrmRecord `
-            -conn $conn `
-            -EntityLogicalName solution `
-            -Id $solution.solutionid `
-            -Fields @{
-              version = $env:VERSION
-            }
-        env:
-          CONNECTION_STRING: "AuthType=ClientSecret; TenantId=${{ secrets.TENANT_ID }}; ClientId=${{ secrets.CLIENT_ID }}; ClientSecret=${{ secrets.CLIENT_SECRET }}; Url=${{ secrets.URL }}"
-          VERSION: ${{ needs.unpack-and-commit.outputs.version }}

@@ -58,12 +58,12 @@ runs:
       shell: bash
       run: |
         pac solution export \
-          --path ${{ runner.temp }}/${{ inputs.solution-name }}.zip \
+          --path $RUNNER_TEMP/${{ inputs.solution-name }}.zip \
           --name ${{ inputs.solution-name }} \
           --async &
 
         pac solution export \
-          --path ${{ runner.temp }}/${{ inputs.solution-name }}_managed.zip \
+          --path $RUNNER_TEMP/${{ inputs.solution-name }}_managed.zip \
           --name ${{ inputs.solution-name }} \
           --managed \
           --async &
@@ -74,7 +74,7 @@ runs:
       shell: bash
       run: |
         pac solution unpack \
-          --zipfile ${{ runner.temp }}/${{ inputs.solution-name }}.zip \
+          --zipfile $RUNNER_TEMP/${{ inputs.solution-name }}.zip \
           --folder ${{ inputs.solution-name }} \
           --packagetype Both \
           --allowDelete \

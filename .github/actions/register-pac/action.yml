@@ -38,6 +38,9 @@ runs:
           Copy-Item "${{ runner.temp }}/$packageId/tools" "${{ inputs.location }}"
           Write-Host "copied tools subfolder to ${{ inputs.location }}"
 
+          cd "${{ runner.temp }}"
+          ls -R
+
           ${{ inputs.location }}/pac telemetry disable
 
           Write-Host "${{ inputs.location }}" >> $GITHUB_PATH

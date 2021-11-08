@@ -18,7 +18,7 @@ runs:
             "Windows" { "Microsoft.PowerApps.CLI" }
           }
           Write-Host "package id: $packageId"
-          $packageInfo = Invoke-WebRequest `
+          $packageInfo = Invoke-RestMethod `
             "https://api.nuget.org/v3/registration5-semver1/$(
                 $packageId.ToLower()
               )/index.json"

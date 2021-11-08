@@ -13,9 +13,9 @@ runs:
         {
           Write-Host "downloading pac..."
           Write-Host ([System.Environment]::OSVersion.Platform)
-          $packageId = (switch([System.Environment]::OSVersion.Platform) {
+          $packageId = switch([System.Environment]::OSVersion.Platform) {
             "Win32NT" { "Microsoft.PowerApps.CLI" }
-          })
+          }
         }
         <#
         if ! command -v pac &> /dev/null

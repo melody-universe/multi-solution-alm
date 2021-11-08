@@ -33,6 +33,8 @@ runs:
     - uses: ./github/actions/pac-auth
       with:
         environment-url: ${{ inputs.environment-url }}
+        user-name: ${{ inputs.user-name }}
+        password-secret: ${{ inputs.password-secret }}
         app-id: ${{ inputs.app-id }}
         client-secret: ${{ inputs.client-secret }}
         tenant-id: ${{ inputs.tenant-id }}

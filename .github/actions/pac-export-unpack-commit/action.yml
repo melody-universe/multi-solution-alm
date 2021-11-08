@@ -30,7 +30,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: ./github/actions/pac-auth
+    - uses: ./.github/actions/pac-auth
       with:
         environment-url: ${{ inputs.environment-url }}
         user-name: ${{ inputs.user-name }}

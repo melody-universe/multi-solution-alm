@@ -22,7 +22,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: ./actions/register-pac
+    - uses: ./github/actions/register-pac
     - run: |
         pac auth create \
           --url ${{ inputs.environment-url }} \

@@ -14,7 +14,7 @@ jobs:
     environment: development
     steps:
       - uses: actions/checkout@v2
-      - uses: ./actions/pac-export-unpack-commit
+      - uses: ./github/actions/pac-export-unpack-commit
         with:
           environment-url: ${{ secrets.URL }}
           app-id: ${{ secrets.CLIENT_ID }}

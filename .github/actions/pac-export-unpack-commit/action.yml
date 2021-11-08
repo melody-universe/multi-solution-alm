@@ -30,7 +30,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: ./actions/pac-auth
+    - uses: ./github/actions/pac-auth
       with:
         environment-url: ${{ secrets.URL }}
         app-id: ${{ secrets.CLIENT_ID }}

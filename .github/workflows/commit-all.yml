@@ -10,7 +10,7 @@ concurrency: commit-all
 
 jobs:
   export-unpack-commit:
-    runs-on: linux-latest
+    runs-on: ubuntu-latest
     environment: development
     steps:
       - uses: actions/checkout@v2

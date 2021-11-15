@@ -32,7 +32,7 @@ runs:
   steps:
     - shell: bash
       run: |
-        if [[ $(git branch --all --list */development) ]]; then
+        if [[ $(git ls-remote --heads origin development) ]]; then
           git checkout development
           git pull
         else

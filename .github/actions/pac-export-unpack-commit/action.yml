@@ -30,6 +30,14 @@ inputs:
 runs:
   using: composite
   steps:
+    - shell: bash
+      run: |
+        if [[ $(git branch --list development) ]]; then
+          git checkout development
+        else
+          git checkout -b development
+        fi
+
     - uses: ./.github/actions/pac-auth
       with:
         environment-url: ${{ inputs.environment-url }}

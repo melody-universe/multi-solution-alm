@@ -36,6 +36,7 @@ runs:
           git checkout development
         else
           git checkout -b development
+          git branch -u origin HEAD
         fi
 
     - uses: ./.github/actions/pac-auth

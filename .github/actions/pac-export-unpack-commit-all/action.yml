@@ -1,0 +1,164 @@
+name: pac auth
+description: Export, unpack, and commit a collection of solutions
+inputs:
+  environment-url:
+    description: 'URL of Power Platform environment to connect with; e.g. "https://test-env.crm.dynamics.com"'
+    required: false
+  user-name:
+    description: 'Power Platform user name to authenticate with, e.g. myname@my-org.onmicrosoft.com. Setting this input makes user-name and password required; specifying alternate "app-id" credential set of inputs will result in an error.'
+    required: false
+  password-secret:
+    description: "Power Platform password, required if authenticating with username. Do NOT checkin password, instead create a secret and reference it here with: see: https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#using-encrypted-secrets-in-a-workflow"
+    required: false
+  app-id:
+    description: 'The application id to authenticate with. Setting this input makes app-id, tenant-id and client-secret required; specifying alternate "username" credential set of inputs will result in an error.'
+    required: false
+  client-secret:
+    description: "The client secret to authenticate with. Required if authenticating with app-id."
+    required: false
+  tenant-id:
+    description: "Tenant id if using app-id & client secret to authenticate."
+    required: false
+
+  solution-names:
+    description: "A comma-separated list of names of solutions to export"
+    required: true
+  message:
+    description: "The message for the commit"
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        if [[ $(git branch --list development) ]]; then
+          git checkout development
+        else
+          git checkout -b development
+          git push -u origin HEAD
+        fi
+
+    - uses: ./.github/actions/pac-auth
+      with:
+        environment-url: ${{ inputs.environment-url }}
+        user-name: ${{ inputs.user-name }}
+        password-secret: ${{ inputs.password-secret }}
+        app-id: ${{ inputs.app-id }}
+        client-secret: ${{ inputs.client-secret }}
+        tenant-id: ${{ inputs.tenant-id }}
+
+    - id: get-message
+      shell: bash
+      env:
+        MESSAGE: ${{ inputs.message }}
+        SOLUTION_NAME: ${{ inputs.solution-name }}
+      run: |
+        echo "MESSAGE = $MESSAGE"
+        if [ -z "$MESSAGE" ]; then {
+          echo "message is null. setting it to a default..."
+          echo "::set-output name=message::automated solution export/unpack/commit ($SOLUTION_NAME)"
+        } else {
+          echo "message has a value. setting it as the output to this step"
+          echo "::set-output name=message::$MESSAGE"
+        } fi
+
+    - id: export
+      shell: bash
+      run: |
+        solutions=$(echo "${{ inputs.solution-names }}" | tr "," "\n")
+        for solution in $solutions; do
+          pac solution export \
+            --path $RUNNER_TEMP/$solution.zip \
+            --name $solution \
+            --async &
+
+          pac solution export \
+            --path $RUNNER_TEMP/$(echo $solution)_managed.zip \
+            --name $solution \
+            --managed \
+            --async &
+        done
+
+#    - id: unpack
+#      shell: bash
+#      run: |
+#        pac solution unpack \
+#          --zipfile $RUNNER_TEMP/${{ inputs.solution-name }}.zip \
+#          --folder ${{ inputs.solution-name }} \
+#          --packagetype Both \
+#          --allowDelete \
+#          --allowWrite
+#
+#    - id: get-version-update-action
+#      shell: bash
+#      env:
+#        MESSAGE: ${{ steps.get-message.outputs.message }}
+#      run: |
+#        message=${MESSAGE,,}
+#        if [[ $message =~ ^major:.*$ ]]
+#        then
+#          action="major"
+#        elif [[ $message =~ ^minor:.*$ ]]
+#        then
+#          action="minor"
+#        elif [[ $message =~ ^build:.*$ ]]
+#        then
+#          action="build"
+#        elif [[ $message =~ ^revision:.*$ || $(git diff --numstat | wc -l) -gt 0 ]]
+#        then
+#          action="revision"
+#        else
+#          echo "no version update action found"
+#        fi
+#
+#        if [[ ! -z ${action+x} ]]
+#        then
+#          echo "version update action: $action"
+#          echo "::set-output name=action::$action"
+#        fi
+#
+#    - id: set-version
+#      shell: pwsh
+#      env:
+#        ACTION: ${{ steps.get-version-update-action.outputs.action }}
+#        SOLUTION_NAME: ${{ inputs.solution-name }}
+#      run: |
+#        if ([string]::IsNullOrEmpty($env:ACTION)) {
+#          exit
+#        }
+#        $solutionXmlPath = "$env:SOLUTION_NAME/Other/Solution.xml"
+#        $solutionXml = New-Object xml
+#        $solutionXml.PreserveWhitespace = $true
+#        $solutionXml.Load($solutionXmlPath)
+#        $versionNode = $solutionXml.SelectSingleNode("/ImportExportXml/SolutionManifest/Version")
+#        $version = $versionNode.InnerText
+#        $parts = $version.Split(".") | ForEach-Object { [int]::Parse($_) }
+#        switch($env:ACTION) {
+#          "major" {
+#            $parts[0]++
+#            $parts[1] = $parts[2] = $parts[3] = 0
+#          }
+#          "minor" {
+#            $parts[1]++
+#            $parts[2] = $parts[3] = 0
+#          }
+#          "build" {
+#            $parts[2]++
+#            $parts[3] = 0
+#          }
+#          "revision" {
+#            $parts[3]++
+#          }
+#        }
+#        $newVersion = [string]::Join(".", $parts)
+#        Write-Host "Changing version from $version to $newVersion"
+#        Write-Host "::set-output name=version::$newVersion"
+#        $versionNode.InnerText = $newVersion
+#        $solutionXml.Save($solutionXmlPath)
+#        cat $solutionXmlPath
+#
+#    - uses: EndBug/add-and-commit@v7
+#      with:
+#        branch: development
+#        message: ${{ steps.get-message.outputs.message }}

@@ -6,6 +6,8 @@ on:
       - melody_core/*
       - melody_processes/*
       - .github/workflows/ci-cd.yml
+    branches:
+      - main
   workflow_dispatch:
 
 concurrency: production

@@ -5,6 +5,7 @@ runs:
   steps:
     - run: |
         if [[ $(git ls-remote --heads origin development) ]]; then
+          git fetch origin development
           git switch development
           git pull
         else

@@ -6,6 +6,9 @@ on:
     inputs:
       commit-message:
         description: Commit message
+      # Comma-separated list of solutions to export / unpack / commit
+      solutions:
+        description: Solution(s)
 
 concurrency: commit-all
 

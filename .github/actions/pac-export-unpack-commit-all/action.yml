@@ -30,7 +30,7 @@ inputs:
 runs:
   using: composite
   steps:
-#    - uses: ./.github/actions/use-development
+    #    - uses: ./.github/actions/use-development
 
     - uses: ./.github/actions/pac-auth
       with:
@@ -72,6 +72,7 @@ runs:
             --managed \
             --async &
         done
+        wait
 
 #    - id: unpack
 #      shell: bash

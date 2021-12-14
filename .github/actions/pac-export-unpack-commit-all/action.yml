@@ -56,7 +56,7 @@ runs:
           echo "::set-output name=message::$MESSAGE"
         } fi
 
-    - id: export
+    - id: export-unpack
       shell: bash
       run: |
         solutions=$(echo "${{ inputs.solution-names }}" | tr "," "\n")
@@ -71,14 +71,7 @@ runs:
             --name $solution \
             --managed \
             --async &
-        done
-        wait
 
-    - id: unpack
-      shell: bash
-      run: |
-        solutions=$(echo "${{ inputs.solution-names }}" | tr "," "\n")
-        for solution in $solutions; do
           pac solution unpack \
             --zipfile $RUNNER_TEMP/$solution.zip \
             --folder $solution \
@@ -87,6 +80,7 @@ runs:
             --allowWrite &
         done
         wait
+
 #
 #    - id: get-version-update-action
 #      shell: bash

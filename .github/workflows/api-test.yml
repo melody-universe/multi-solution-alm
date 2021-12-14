@@ -5,6 +5,7 @@ on:
 
 jobs:
   test-api:
+    environment: development
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -20,6 +21,6 @@ jobs:
           curl \
             -H "Accept: application/json" \
             -H "Authorization: Bearer ${{ steps.get-token.outputs.token }}" \
-            "$(echo $URL)api/data/v9.2"
+            "$URL/api/data/v9.2"
         env:
           URL: ${{ secrets.URL }}

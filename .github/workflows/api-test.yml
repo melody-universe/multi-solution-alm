@@ -20,4 +20,4 @@ jobs:
           curl \
             -H "Accept: application/json" \
             -H "Authorization: Bearer ${{ steps.get-token.outputs.token }}" \
-            ${{ secrets.URL }}/api/data/v9.2
+            "${{ secrets.URL }}/api/data/v9.2"

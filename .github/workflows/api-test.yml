@@ -22,4 +22,4 @@ jobs:
             -H "Authorization: Bearer ${{ steps.get-token.outputs.token }}" \
             "$URL/api/data/v9.2"
         env:
-          URL: ${{ secrest.URL }}
+          URL: ${{ secrets.URL }}

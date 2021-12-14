@@ -1,0 +1,31 @@
+name: get api token
+description: Authenticate to the Dataverse API using curl
+inputs:
+  environment-url:
+    description: 'URL of Power Platform environment to connect with; e.g. "https://test-env.crm.dynamics.com"'
+    required: false
+  app-id:
+    description: 'The application id to authenticate with. Setting this input makes app-id, tenant-id and client-secret required; specifying alternate "username" credential set of inputs will result in an error.'
+    required: false
+  client-secret:
+    description: "The client secret to authenticate with. Required if authenticating with app-id."
+    required: false
+  tenant-id:
+    description: "Tenant id if using app-id & client secret to authenticate."
+    required: false
+runs:
+  using: composite
+  steps:
+    - run: |
+        token=$(
+          curl \
+            -H "Content-type: application/x-www-form-urlencoded" \
+            -d (
+              "client_id=${{ inputs.app-id }}&" +
+              "scope=${{ inputs.environment-url }}/.default&" +
+              "grant_type=client_credentials&" +
+              "client_secret=${{ inputs.client-secret }}" \
+            https://login.microsoftonline.com/${{ inputs.tenant-id }}/oauth2/v2.0/token \
+          | jq '.access_token')
+        echo "::set-output name=token::$token"
+      shell: bash

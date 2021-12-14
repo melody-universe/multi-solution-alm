@@ -24,7 +24,8 @@ runs:
               "client_id=${{ inputs.app-id }}&" +
               "scope=${{ inputs.environment-url }}/.default&" +
               "grant_type=client_credentials&" +
-              "client_secret=${{ inputs.client-secret }}" \
+              "client_secret=${{ inputs.client-secret }}"
+            ) \
             https://login.microsoftonline.com/${{ inputs.tenant-id }}/oauth2/v2.0/token \
           | jq '.access_token')
         echo "::set-output name=token::$token"

@@ -8,9 +8,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: ./.github/actions/get-api-token
+      - id: get-token
+        uses: ./.github/actions/get-api-token
         with:
           environment-url: ${{ secrets.URL }}
           app-id: ${{ secrets.CLIENT_ID }}
           client-secret: ${{ secrets.CLIENT_SECRET }}
           tenant-id: ${{ secrets.TENANT_ID }}
+      - name: List collections
+        run: |
+          curl \
+            -H "Accept: application/json" \
+            -H "Authorization: Bearer ${{ steps.get-token.outputs.token }}" \
+            ${{ secrets.URL }}/api/data/v9.2

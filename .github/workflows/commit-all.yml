@@ -1,7 +1,7 @@
 name: Commit all solutions
 
 on:
-  push:
+  # push:
   workflow_dispatch:
     inputs:
       commit-message:

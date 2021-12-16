@@ -95,7 +95,9 @@ runs:
             awk -F '>' '{print $2}'
           )
           echo '$solution current version is $currentVersion'
-        
+        done
+        wait
+
 #          if [[ $message =~ ^major:.*$ ]]
 #          then
 #            action="major"
@@ -117,8 +119,6 @@ runs:
 #            echo "version update action: $action"
 #            echo "::set-output name=action::$action"
 #          fi
-        done
-        wait
 
     - id: get-version-update-action
       shell: bash

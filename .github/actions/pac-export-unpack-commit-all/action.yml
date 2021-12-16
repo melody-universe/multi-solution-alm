@@ -135,7 +135,7 @@ runs:
           elif [[ $message =~ ^revision:.*$ || \
                     $(git diff --numstat "./$solution" | wc -l) -gt 0 ]]
           then
-            let "build = $build + 1"
+            let "revision = $revision + 1"
             action="revision"
           else
             echo "No version update action found for $solution."
@@ -144,59 +144,12 @@ runs:
           if [[ $action != "skip" ]]
           then
             newVersion="$major.$minor.$build.$revision"
-            echo "Updated $solution $action version number. Version is now $newVersion"
+            echo "Updating $solution $action version number to $newVersion..."
+            sed -iE \
+              "s/(<version>)[0-9.]+(</version>)/\1$newVersion\2/" \
+              "./$solution/Other/Solution.xml"
           fi
         done
-
-#          if [[ $message =~ ^major:.*$ ]]
-#          then
-#            action="major"
-#          elif [[ $message =~ ^minor:.*$ ]]
-#          then
-#            action="minor"
-#          elif [[ $message =~ ^build:.*$ ]]
-#          then
-#            action="build"
-#          elif [[ $message =~ ^revision:.*$ || $(git diff --numstat | wc -l) -gt 0 ]]
-#          then
-#            action="revision"
-#          else
-#            echo "no version update action found for $solution"
-#          fi
-#
-#          if [[ ! -z ${action+x} ]]
-#          then
-#            echo "version update action: $action"
-#            echo "::set-output name=action::$action"
-#          fi
-
-#    - id: get-version-update-action
-#      shell: bash
-#      env:
-#        MESSAGE: ${{ steps.get-message.outputs.message }}
-#      run: |
-#        message=${MESSAGE,,}
-#        if [[ $message =~ ^major:.*$ ]]
-#        then
-#          action="major"
-#        elif [[ $message =~ ^minor:.*$ ]]
-#        then
-#          action="minor"
-#        elif [[ $message =~ ^build:.*$ ]]
-#        then
-#          action="build"
-#        elif [[ $message =~ ^revision:.*$ || $(git diff --numstat | wc -l) -gt 0 ]]
-#        then
-#          action="revision"
-#        else
-#          echo "no version update action found"
-#        fi
-#
-#        if [[ ! -z ${action+x} ]]
-#        then
-#          echo "version update action: $action"
-#          echo "::set-output name=action::$action"
-#        fi
 
 #    - id: set-version
 #      shell: pwsh
@@ -238,7 +191,7 @@ runs:
 #        $solutionXml.Save($solutionXmlPath)
 #        cat $solutionXmlPath
 #
-#    - uses: EndBug/add-and-commit@v7
-#      with:
-#        branch: development
-#        message: ${{ steps.get-message.outputs.message }}
+    - uses: EndBug/add-and-commit@v7
+      with:
+        branch: development
+        message: ${{ steps.get-message.outputs.message }}

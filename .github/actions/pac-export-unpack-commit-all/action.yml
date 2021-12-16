@@ -105,7 +105,7 @@ runs:
         solutions=$(echo "${{ inputs.solution-names }}" | tr "," "\n")
         for solution in $solutions; do
           currentVersion=$(
-            grep -iEo "<version>[0-9.]*" "./$solution/Solution.xml" |
+            grep -iEo "<version>[0-9.]*" "./$solution/Other/Solution.xml" |
             awk -F '>' '{print $2}'
           )
           echo "$solution current version is $currentVersion"

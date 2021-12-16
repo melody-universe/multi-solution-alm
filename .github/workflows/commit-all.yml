@@ -1,13 +1,13 @@
 name: Commit all solutions
 
 on:
-  push:
   workflow_dispatch:
     inputs:
       commit-message:
         description: Commit message
       # Comma-separated list of solutions to export / unpack / commit
       solutions:
+        default: melody_core,melody_processes
         description: Solution(s)
 
 concurrency: commit-all

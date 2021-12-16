@@ -164,46 +164,6 @@ runs:
           fi
         done
 
-#    - id: set-version
-#      shell: pwsh
-#      env:
-#        ACTION: ${{ steps.get-version-update-action.outputs.action }}
-#        SOLUTION_NAME: ${{ inputs.solution-name }}
-#      run: |
-#        if ([string]::IsNullOrEmpty($env:ACTION)) {
-#          exit
-#        }
-#        $solutionXmlPath = "$env:SOLUTION_NAME/Other/Solution.xml"
-#        $solutionXml = New-Object xml
-#        $solutionXml.PreserveWhitespace = $true
-#        $solutionXml.Load($solutionXmlPath)
-#        $versionNode = $solutionXml.SelectSingleNode("/ImportExportXml/SolutionManifest/Version")
-#        $version = $versionNode.InnerText
-#        $parts = $version.Split(".") | ForEach-Object { [int]::Parse($_) }
-#        switch($env:ACTION) {
-#          "major" {
-#            $parts[0]++
-#            $parts[1] = $parts[2] = $parts[3] = 0
-#          }
-#          "minor" {
-#            $parts[1]++
-#            $parts[2] = $parts[3] = 0
-#          }
-#          "build" {
-#            $parts[2]++
-#            $parts[3] = 0
-#          }
-#          "revision" {
-#            $parts[3]++
-#          }
-#        }
-#        $newVersion = [string]::Join(".", $parts)
-#        Write-Host "Changing version from $version to $newVersion"
-#        Write-Host "::set-output name=version::$newVersion"
-#        $versionNode.InnerText = $newVersion
-#        $solutionXml.Save($solutionXmlPath)
-#        cat $solutionXmlPath
-#
     - uses: EndBug/add-and-commit@v7
       with:
         message: ${{ steps.get-message.outputs.message }}

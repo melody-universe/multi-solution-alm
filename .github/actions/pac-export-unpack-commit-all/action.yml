@@ -53,23 +53,19 @@ runs:
       shell: bash
       env:
         MESSAGE: ${{ inputs.message }}
-        SOLUTION_NAME: ${{ inputs.solution-name }}
+        SOLUTION_NAMES: ${{ inputs.solution-names }}
       run: |
-        echo "MESSAGE = $MESSAGE"
         if [ -z "$MESSAGE" ]; then {
-          echo "message is null. setting it to a default..."
-          echo "::set-output name=message::automated solution export/unpack/commit ($SOLUTION_NAME)"
+          defaultMessage="automated solution export/unpack/bump/commit ($SOLUTION_NAMES)"
+          echo "Message is null. Setting it to a default: \"$defaultMessage\""
+          echo "::set-output name=message::$defaultMessage"
         } else {
-          echo "message has a value. setting it as the output to this step"
           echo "::set-output name=message::$MESSAGE"
         } fi
 
     - id: export
       shell: bash
-      env:
-        MESSAGE: ${{ steps.get-message.outputs.message }}
       run: |
-        message=${MESSAGE,,}
         solutions=$(echo "${{ inputs.solution-names }}" | tr "," "\n")
         for solution in $solutions; do
           pac solution export \
@@ -101,14 +97,53 @@ runs:
 
     - id: bump-version
       shell: bash
+      env:
+        MESSAGE: ${{ steps.get-message.outputs.message }}
       run: |
+        message=${MESSAGE,,}
         solutions=$(echo "${{ inputs.solution-names }}" | tr "," "\n")
         for solution in $solutions; do
           currentVersion=$(
             grep -iEo "<version>[0-9.]*" "./$solution/Other/Solution.xml" |
             awk -F '>' '{print $2}'
           )
-          echo "$solution current version is $currentVersion"
+          echo "$solution current version is $currentVersion."
+          major=$(echo $currentVersion | awk -F '.' '{print $1}')
+          minor=$(echo $currentVersion | awk -F '.' '{print $2}')
+          build=$(echo $currentVersion | awk -F '.' '{print $3}')
+          revision=$(echo $currentVersion | awk -F '.' '{print $4}')
+          
+          if [[ $message =~ ^major:.*$ ]]
+          then
+            let "major = $major + 1"
+            minor=0
+            build=0
+            revision=0
+            action="major"
+          elif [[ $message =~ ^minor:.*$ ]]
+          then
+            let "minor = $minor + 1"
+            build=0
+            revision=0
+            action="minor"
+          elif [[ $message =~ ^build:.*$ ]]
+          then
+            let "build = $build + 1"
+            revision=0
+            action="build"
+          elif [[ $message =~ ^revision:.*$ || $(git diff --numstat | wc -l) -gt 0 ]]
+          then
+            let "build = $build + 1"
+            action="revision"
+          else
+            echo "No version update action found for $solution."
+          fi
+
+          if [[ -z ${action+x} ]]
+          then
+            newVersion="$major.$minor.$build.$revision"
+            echo "Updated $solution $action version number. Version is now $newVersion"
+          fi
         done
 
 #          if [[ $message =~ ^major:.*$ ]]

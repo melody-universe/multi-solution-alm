@@ -141,6 +141,8 @@ runs:
             echo "No version update action found for $solution."
           fi
 
+          echo "action = $action"
+
           if [[ $action -ne "skip" ]]
           then
             newVersion="$major.$minor.$build.$revision"

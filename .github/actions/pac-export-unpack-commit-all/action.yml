@@ -30,7 +30,15 @@ inputs:
 runs:
   using: composite
   steps:
-    #    - uses: ./.github/actions/use-development
+    # - uses: ./.github/actions/use-development
+
+    - id: get-api-token
+      uses: ./.github/actions/get-api-token
+      with:
+        environment-url: ${{ inputs.environment-url }}
+        app-id: ${{ inputs.app-id }}
+        client-secret: ${{ inputs.client-secret }}
+        tenant-id: ${{ inputs.tenant-id }}
 
     - uses: ./.github/actions/pac-auth
       with:
@@ -56,9 +64,12 @@ runs:
           echo "::set-output name=message::$MESSAGE"
         } fi
 
-    - id: export-unpack
+    - id: export-unpack-bump-version
       shell: bash
+      env:
+        MESSAGE: ${{ steps.get-message.outputs.message }}
       run: |
+        message=${MESSAGE,,}
         solutions=$(echo "${{ inputs.solution-names }}" | tr "," "\n")
         for solution in $solutions; do
           pac solution export \
@@ -78,38 +89,65 @@ runs:
             --packagetype Both \
             --allowDelete \
             --allowWrite &
+          
+          currentVersion=$(
+            grep -iEo "<version>[0-9.]*" './$solution/Solution.xml' |
+            awk -F '>' '{print $2}'
+          )
+          echo '$solution current version is $currentVersion'
+        
+#          if [[ $message =~ ^major:.*$ ]]
+#          then
+#            action="major"
+#          elif [[ $message =~ ^minor:.*$ ]]
+#          then
+#            action="minor"
+#          elif [[ $message =~ ^build:.*$ ]]
+#          then
+#            action="build"
+#          elif [[ $message =~ ^revision:.*$ || $(git diff --numstat | wc -l) -gt 0 ]]
+#          then
+#            action="revision"
+#          else
+#            echo "no version update action found for $solution"
+#          fi
+#
+#          if [[ ! -z ${action+x} ]]
+#          then
+#            echo "version update action: $action"
+#            echo "::set-output name=action::$action"
+#          fi
         done
         wait
 
-#
-#    - id: get-version-update-action
-#      shell: bash
-#      env:
-#        MESSAGE: ${{ steps.get-message.outputs.message }}
-#      run: |
-#        message=${MESSAGE,,}
-#        if [[ $message =~ ^major:.*$ ]]
-#        then
-#          action="major"
-#        elif [[ $message =~ ^minor:.*$ ]]
-#        then
-#          action="minor"
-#        elif [[ $message =~ ^build:.*$ ]]
-#        then
-#          action="build"
-#        elif [[ $message =~ ^revision:.*$ || $(git diff --numstat | wc -l) -gt 0 ]]
-#        then
-#          action="revision"
-#        else
-#          echo "no version update action found"
-#        fi
-#
-#        if [[ ! -z ${action+x} ]]
-#        then
-#          echo "version update action: $action"
-#          echo "::set-output name=action::$action"
-#        fi
-#
+    - id: get-version-update-action
+      shell: bash
+      env:
+        MESSAGE: ${{ steps.get-message.outputs.message }}
+      run: |
+        message=${MESSAGE,,}
+        if [[ $message =~ ^major:.*$ ]]
+        then
+          action="major"
+        elif [[ $message =~ ^minor:.*$ ]]
+        then
+          action="minor"
+        elif [[ $message =~ ^build:.*$ ]]
+        then
+          action="build"
+        elif [[ $message =~ ^revision:.*$ || $(git diff --numstat | wc -l) -gt 0 ]]
+        then
+          action="revision"
+        else
+          echo "no version update action found"
+        fi
+
+        if [[ ! -z ${action+x} ]]
+        then
+          echo "version update action: $action"
+          echo "::set-output name=action::$action"
+        fi
+
 #    - id: set-version
 #      shell: pwsh
 #      env:

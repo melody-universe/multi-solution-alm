@@ -32,14 +32,6 @@ runs:
   steps:
     # - uses: ./.github/actions/use-development
 
-    - id: get-api-token
-      uses: ./.github/actions/get-api-token
-      with:
-        environment-url: ${{ inputs.environment-url }}
-        app-id: ${{ inputs.app-id }}
-        client-secret: ${{ inputs.client-secret }}
-        tenant-id: ${{ inputs.tenant-id }}
-
     - uses: ./.github/actions/pac-auth
       with:
         environment-url: ${{ inputs.environment-url }}
@@ -95,6 +87,14 @@ runs:
         done
         wait
 
+    - id: get-api-token
+      uses: ./.github/actions/get-api-token
+      with:
+        environment-url: ${{ inputs.environment-url }}
+        app-id: ${{ inputs.app-id }}
+        client-secret: ${{ inputs.client-secret }}
+        tenant-id: ${{ inputs.tenant-id }}
+
     - id: bump-version
       shell: bash
       env:
@@ -102,6 +102,8 @@ runs:
       run: |
         message=${MESSAGE,,}
         solutions=$(echo "${{ inputs.solution-names }}" | tr "," "\n")
+        token="${{ steps.get-api-token.outputs.token }}"
+        url="${{ inputs.environment-url }}"
         for solution in $solutions; do
           currentVersion=$(
             grep -iEo "<version>[0-9.]*" "./$solution/Other/Solution.xml" |
@@ -148,6 +150,17 @@ runs:
             sed -i \
               "s|\(<version>\)[0-9.]*\(</version>\)|\1$newVersion\2|i" \
               "./$solution/Other/Solution.xml"
+            solutionId=$(curl -s \
+              -H "Accept: application/json" \
+              -H "Authorization: Bearer $token" \
+              "$url/api/data/v9.2/solutions?\$select=solutionid&\$filter=uniquename%20eq%20'$solution'" | \
+              jq -r .value[0].solutionid)
+            curl -s \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer $token" \
+              -X PATCH \
+              -d "{\"version\": \"$newVersion\"}" \
+              "$url/api/data/v9.2/solutions($solutionId)"
           fi
         done
 

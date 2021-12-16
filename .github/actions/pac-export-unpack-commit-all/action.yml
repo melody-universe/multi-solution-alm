@@ -112,9 +112,8 @@ runs:
           minor=$(echo $currentVersion | awk -F '.' '{print $2}')
           build=$(echo $currentVersion | awk -F '.' '{print $3}')
           revision=$(echo $currentVersion | awk -F '.' '{print $4}')
-
-          echo "Message = $message"
           
+          action="skip"
           if [[ $message =~ ^major:.*$ ]]
           then
             let "major = $major + 1"
@@ -142,7 +141,7 @@ runs:
             echo "No version update action found for $solution."
           fi
 
-          if [[ -z ${action+x} ]]
+          if [[ $action -ne "skip" ]]
           then
             newVersion="$major.$minor.$build.$revision"
             echo "Updated $solution $action version number. Version is now $newVersion"

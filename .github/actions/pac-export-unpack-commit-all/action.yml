@@ -133,7 +133,8 @@ runs:
             let "build = $build + 1"
             revision=0
             action="build"
-          elif [[ $message =~ ^revision:.*$ || $(git diff "./$solution" --numstat | wc -l) -gt 0 ]]
+          elif [[ $message =~ ^revision:.*$ || \
+                    $(git diff --numstat "./$solution" | wc -l) -gt 0 ]]
           then
             let "build = $build + 1"
             action="revision"

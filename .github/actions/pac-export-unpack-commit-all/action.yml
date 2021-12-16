@@ -145,8 +145,8 @@ runs:
           then
             newVersion="$major.$minor.$build.$revision"
             echo "Updating $solution $action version number to $newVersion..."
-            sed -iE \
-              "s/(<version>)[0-9.]+(</version>)/\1$newVersion\2/" \
+            sed -i \
+              "s|\(<version>\)[0-9.]*\(</version>\)|\1$newVersion\2|i" \
               "./$solution/Other/Solution.xml"
           fi
         done
@@ -193,5 +193,4 @@ runs:
 #
     - uses: EndBug/add-and-commit@v7
       with:
-        branch: development
         message: ${{ steps.get-message.outputs.message }}

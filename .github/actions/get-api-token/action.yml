@@ -27,7 +27,7 @@ runs:
         &grant_type=client_credentials\
         &client_secret=${{ inputs.client-secret }}"
         token=$(
-          curl \
+          curl -s \
             -H "Content-type: application/x-www-form-urlencoded" \
             -d $authBody \
             https://login.microsoftonline.com/${{ inputs.tenant-id }}/oauth2/v2.0/token \

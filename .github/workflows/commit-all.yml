@@ -11,7 +11,7 @@ on:
         description: Solution(s)
       branch-mode:
         default: development
-        description: "development" or "hotfix" (TODO)
+        description: '"development" or "hotfix" (TODO)''
 
 concurrency: commit-all
 

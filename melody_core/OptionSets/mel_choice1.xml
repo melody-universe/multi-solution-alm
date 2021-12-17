@@ -26,5 +26,10 @@
         <label description="Option G" languagecode="1033" />
       </labels>
     </option>
+    <option value="100000003">
+      <labels>
+        <label description="Option H" languagecode="1033" />
+      </labels>
+    </option>
   </options>
 </optionset>

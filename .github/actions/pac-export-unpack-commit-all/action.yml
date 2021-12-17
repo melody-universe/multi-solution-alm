@@ -30,7 +30,7 @@ inputs:
 runs:
   using: composite
   steps:
-    # - uses: ./.github/actions/use-development
+    - uses: ./.github/actions/use-development
 
     - uses: ./.github/actions/pac-auth
       with:
@@ -166,4 +166,5 @@ runs:
 
     - uses: EndBug/add-and-commit@v7
       with:
+        branch: development
         message: ${{ steps.get-message.outputs.message }}

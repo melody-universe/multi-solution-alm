@@ -9,6 +9,9 @@ on:
       solutions:
         default: melody_core,melody_processes
         description: Solution(s)
+      branch-mode:
+        default: development
+        description: "development" or "hotfix" (TODO)
 
 concurrency: commit-all
 

@@ -1,0 +1,30 @@
+name: validate solutions list
+description: |
+  Ensure that a provided comma-separated list of solutions is valid
+  - Each solution must be present in solution-names.txt
+  - Each solution must exist in the target environment
+inputs:
+  solution-names:
+    description: "Comma-separated list of names of solutions to verify"
+    required: true
+outputs:
+  token:
+    description: Comma-separated list of solutions (trimmed)
+    value: ${{ steps.validate-solutions-list.solutions }}
+
+runs:
+  using: composite
+  steps:
+    - id: validate-solutions-list
+      env:
+        SOLUTIONS: ${{ inputs.solution-names }}
+      shell: bash
+      run: |
+        trimmedSolutions=$(echo $SOLUTIONS)
+        if [[ $trimmedSolutions -eq "" ]]
+        then
+          solutions=`sed -z 's/\r\?\n/,/g' solution-names.txt`
+        else
+          solutions=`echo $trimmedSolutions | sed 's/\s*,\s*/,/g'`
+        fi
+        echo "::set-output name=solutions::$solutions"

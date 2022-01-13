@@ -56,13 +56,16 @@ runs:
         URL: ${{ inputs.environment-url }}
       shell: bash
       run: |
+        echo "checking that all of $SOLUTIONS exist"
         solutions=$(echo $SOLUTIONS | tr "," "\n")
         for solution in $solutions; do
+          echo "checking $solution"
           results=$(curl -s \
             -H "Accept: application/json" \
             -H "Authorization: Bearer $TOKEN" \
             "$URL/api/data/v9.2/solutions?\$select=solutionid&\$filter=uniquename%20eq%20'$solution'" | \
             jq '.value | length')
+          echo "return $results"
           if [[ $results -eq 0 ]]
           then
             echo "::error title=Missing Solution::$solution does not exist"

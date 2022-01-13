@@ -22,7 +22,7 @@ inputs:
 outputs:
   solution-names:
     description: Comma-separated list of solutions (trimmed)
-    value: ${{ steps.validate-solutions-list.solutions }}
+    value: ${{ steps.validate-solutions-list.outputs.solutions }}
 
 runs:
   using: composite

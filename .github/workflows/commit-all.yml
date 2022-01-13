@@ -5,10 +5,10 @@ on:
     inputs:
       commit-message:
         description: Commit message
-      # Comma-separated list of solutions to export / unpack / commit
       solutions:
-        default: melody_core,melody_processes
-        description: Solution(s)
+        description: >
+          Comma-separated list of solution(s) to commit 
+          (leave blank to commit all)
 
 concurrency: commit-all
 

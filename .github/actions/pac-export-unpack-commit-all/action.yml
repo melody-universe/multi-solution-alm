@@ -30,13 +30,20 @@ inputs:
 runs:
   using: composite
   steps:
+    - id: validate-solutions-list
+      uses: ./.github/actions/validate-solutions-list
+      with:
+        solution-names: ${{ inputs.solution-names }}
+        environment-url: ${{ inputs.environment-url }}
+        app-id: ${{ inputs.app-id }}
+        client-secret: ${{ inputs.client-secret }}
+        tenant-id: ${{ inputs.tenant-id }}
+
     - uses: ./.github/actions/use-development
 
     - uses: ./.github/actions/pac-auth
       with:
         environment-url: ${{ inputs.environment-url }}
-        user-name: ${{ inputs.user-name }}
-        password-secret: ${{ inputs.password-secret }}
         app-id: ${{ inputs.app-id }}
         client-secret: ${{ inputs.client-secret }}
         tenant-id: ${{ inputs.tenant-id }}
@@ -45,7 +52,7 @@ runs:
       shell: bash
       env:
         MESSAGE: ${{ inputs.message }}
-        SOLUTION_NAMES: ${{ inputs.solution-names }}
+        SOLUTION_NAMES: ${{ steps.validate-solutions-list.outputs.solution-names }}
       run: |
         if [ -z "$MESSAGE" ]; then {
           defaultMessage="automated solution export/unpack/bump/commit ($SOLUTION_NAMES)"
@@ -56,9 +63,11 @@ runs:
         } fi
 
     - id: export
+      env:
+        SOLUTION_NAMES: ${{ steps.validate-solutions-list.outputs.solution-names }}
       shell: bash
       run: |
-        solutions=$(echo "${{ inputs.solution-names }}" | tr "," "\n")
+        solutions=$(echo $SOLUTION_NAMES | tr "," "\n")
         for solution in $solutions; do
           pac solution export \
             --path $RUNNER_TEMP/$solution.zip \
@@ -74,9 +83,11 @@ runs:
         wait
 
     - id: unpack
+      env:
+        SOLUTION_NAMES: ${{ steps.validate-solutions-list.outputs.solution-names }}
       shell: bash
       run: |
-        solutions=$(echo "${{ inputs.solution-names }}" | tr "," "\n")
+        solutions=$(echo $SOLUTION_NAMES | tr "," "\n")
         for solution in $solutions; do
           pac solution unpack \
             --zipfile $RUNNER_TEMP/$solution.zip \
@@ -96,14 +107,15 @@ runs:
         tenant-id: ${{ inputs.tenant-id }}
 
     - id: bump-version
-      shell: bash
       env:
+        SOLUTION_NAMES: ${{ steps.validate-solutions-list.outputs.solution-names }}
         MESSAGE: ${{ steps.get-message.outputs.message }}
+        TOKEN: ${{ steps.get-api-token.outputs.token }}
+        URL: ${{ inputs.environment-url }}
+      shell: bash
       run: |
         message=${MESSAGE,,}
-        solutions=$(echo "${{ inputs.solution-names }}" | tr "," "\n")
-        token="${{ steps.get-api-token.outputs.token }}"
-        url="${{ inputs.environment-url }}"
+        solutions=$(echo $SOLUTION_NAMES | tr "," "\n")
         for solution in $solutions; do
           currentVersion=$(
             grep -iEo "<version>[0-9.]*" "./$solution/Other/Solution.xml" |
@@ -152,15 +164,15 @@ runs:
               "./$solution/Other/Solution.xml"
             solutionId=$(curl -s \
               -H "Accept: application/json" \
-              -H "Authorization: Bearer $token" \
-              "$url/api/data/v9.2/solutions?\$select=solutionid&\$filter=uniquename%20eq%20'$solution'" | \
+              -H "Authorization: Bearer $TOKEN" \
+              "$URL/api/data/v9.2/solutions?\$select=solutionid&\$filter=uniquename%20eq%20'$solution'" | \
               jq -r .value[0].solutionid)
             curl -s \
               -H "Content-Type: application/json" \
-              -H "Authorization: Bearer $token" \
+              -H "Authorization: Bearer $TOKEN" \
               -X PATCH \
               -d "{\"version\": \"$newVersion\"}" \
-              "$url/api/data/v9.2/solutions($solutionId)"
+              "$URL/api/data/v9.2/solutions($solutionId)"
           fi
         done
 

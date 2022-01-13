@@ -32,6 +32,7 @@ runs:
         SOLUTIONS: ${{ inputs.solution-names }}
       shell: bash
       run: |
+        echo "input is $SOLUTIONS"
         trimmedSolutions=$(echo $SOLUTIONS)
         if [[ $trimmedSolutions -eq "" ]]
         then

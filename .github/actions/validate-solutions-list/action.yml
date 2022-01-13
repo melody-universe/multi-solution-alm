@@ -7,8 +7,20 @@ inputs:
   solution-names:
     description: "Comma-separated list of names of solutions to verify"
     required: true
+  environment-url:
+    description: 'URL of Power Platform environment to connect with; e.g. "https://test-env.crm.dynamics.com"'
+    required: false
+  app-id:
+    description: 'The application id to authenticate with. Setting this input makes app-id, tenant-id and client-secret required; specifying alternate "username" credential set of inputs will result in an error.'
+    required: false
+  client-secret:
+    description: "The client secret to authenticate with. Required if authenticating with app-id."
+    required: false
+  tenant-id:
+    description: "Tenant id if using app-id & client secret to authenticate."
+    required: false
 outputs:
-  token:
+  solution-names:
     description: Comma-separated list of solutions (trimmed)
     value: ${{ steps.validate-solutions-list.solutions }}
 
@@ -28,3 +40,32 @@ runs:
           solutions=`echo $trimmedSolutions | sed 's/\s*,\s*/,/g'`
         fi
         echo "::set-output name=solutions::$solutions"
+
+    - id: get-api-token
+      uses: ./.github/actions/get-api-token
+      with:
+        environment-url: ${{ inputs.environment-url }}
+        app-id: ${{ inputs.app-id }}
+        client-secret: ${{ inputs.client-secret }}
+        tenant-id: ${{ inputs.tenant-id }}
+
+    - id: ensure-solutions-exist
+      env:
+        SOLUTIONS: ${{ steps.validate-solutions-list.outputs.solutions }}
+        TOKEN: ${{ steps.get-api-token.outputs.token }}
+        URL: ${{ inputs.environment-url }}
+      shell: bash
+      run: |
+        solutions=$(echo $SOLUTIONS | tr "," "\n")
+        for solution in $solutions; do
+          results=$(curl -s \
+            -H "Accept: application/json" \
+            -H "Authorization: Bearer $TOKEN" \
+            "$URL/api/data/v9.2/solutions?\$select=solutionid&\$filter=uniquename%20eq%20'$solution'" | \
+            jq '.value | length')
+          if [[ $results -eq 0 ]]
+          then
+            echo "::error title=Missing Solution::$solution does not exist"
+          fi
+        done
+        wait

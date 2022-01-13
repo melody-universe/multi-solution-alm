@@ -34,7 +34,7 @@ runs:
       run: |
         echo "input is $SOLUTIONS"
         trimmedSolutions=$(echo $SOLUTIONS)
-        if [[ $trimmedSolutions -eq "" ]]
+        if [[ $trimmedSolutions == "" ]]
         then
           solutions=`sed -z 's/\r\?\n/,/g' solution-names.txt`
         else

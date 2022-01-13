@@ -109,11 +109,10 @@ runs:
     - id: bump-version
       env:
         SOLUTION_NAMES: ${{ steps.validate-solutions-list.outputs.solution-names }}
-      shell: bash
-      env:
         MESSAGE: ${{ steps.get-message.outputs.message }}
         TOKEN: ${{ steps.get-api-token.outputs.token }}
         URL: ${{ inputs.environment-url }}
+      shell: bash
       run: |
         message=${MESSAGE,,}
         solutions=$(echo $SOLUTION_NAMES | tr "," "\n")

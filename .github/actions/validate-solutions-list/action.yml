@@ -36,6 +36,7 @@ runs:
         if [[ $trimmedSolutions == "" ]]
         then
           solutions=`sed -z 's/\r\?\n/,/g' solution-names.txt`
+          echo "using default solutions list: $solutions"
         else
           solutions=`echo $trimmedSolutions | sed 's/\s*,\s*/,/g'`
         fi

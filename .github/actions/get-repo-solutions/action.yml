@@ -11,4 +11,5 @@ runs:
       shell: bash
       run: |
         solutions=`sed -z 's/\r\?\n/,/g' solution-names.txt`
+        echo $solutions
         echo "::set-output name=solutions::$solutions"

@@ -22,7 +22,7 @@ inputs:
 outputs:
   solution-names:
     description: Comma-separated list of solutions (trimmed)
-    value: ${{ steps.validate-solutions-list.solutions }}
+    value: ${{ steps.validate-solutions-list.outputs.solutions }}
 
 runs:
   using: composite
@@ -36,8 +36,29 @@ runs:
         if [[ $trimmedSolutions == "" ]]
         then
           solutions=`sed -z 's/\r\?\n/,/g' solution-names.txt`
+          echo "using default solutions list: $solutions"
         else
           solutions=`echo $trimmedSolutions | sed 's/\s*,\s*/,/g'`
+
+          solutionsList=$(echo $solutions | tr "," "\n")
+          validSolutionsList=$(echo `sed -z 's/\r\?\n/,/g' solution-names.txt` | tr "," "\n")
+          
+          for solution in $solutionsList
+          do
+            found=0
+            for validSolution in $validSolutionsList
+            do
+              if [[ $solution == $validSolution ]]
+              then
+                found=1
+              fi
+            done
+            if [[ $found -eq 0 ]]
+            then
+              echo "::error title=Invalid Solution Name::$solution does not exist in solution-names.txt"
+              exit 1
+            fi
+          done
         fi
         echo "::set-output name=solutions::$solutions"
 
@@ -65,7 +86,7 @@ runs:
             jq '.value | length')
           if [[ $results -eq 0 ]]
           then
-            echo "::error title=Missing Solution::$solution does not exist"
+            echo "::error title=Missing Solution::$solution does not exist in the development environment"
             exit 1
           fi
         done

@@ -1,0 +1,14 @@
+name: get repo solutions
+description: Convert solution-names.txt to a comma-separated list
+outputs:
+  solution-names:
+    description: Comma-separated list of solutions
+    value: ${{ steps.get-repo-solutions.outputs.solutions }}
+runs:
+  using: composite
+  steps:
+    - id: get-repo-solutions
+      shell: bash
+      run: |
+        solutions=`sed -z 's/\r\?\n/,/g' solution-names.txt`
+        echo "::set-output name=solutions::$solutions"

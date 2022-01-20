@@ -103,6 +103,7 @@ runs:
           then
             echo "$name is already up-to-date; skipping"
           else
+            echo "packing $name"
             pac solution pack \
               --zipfile "$name.zip" \
               --folder $name \

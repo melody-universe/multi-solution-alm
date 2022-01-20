@@ -17,7 +17,12 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: ./.github/actions/register-pac
+    - uses: ./.github/actions/pac-auth
+      with:
+        environment-url: ${{ inputs.environment-url }}
+        app-id: ${{ inputs.app-id }}
+        client-secret: ${{ inputs.client-secret }}
+        tenant-id: ${{ inputs.tenant-id }}
     - id: get-repo-solution-names
       uses: ./.github/actions/get-repo-solution-names
     - id: get-api-token

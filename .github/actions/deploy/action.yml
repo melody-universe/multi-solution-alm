@@ -69,7 +69,7 @@ runs:
             remoteRevision=$(echo $remoteVersion | awk -F '.' '{print $4}')
 
             if [[ $localMajor -eq $remoteMajor
-              && $localMinor -eq $localMinor ]]
+              && $localMinor -eq $remoteMinor ]]
             then
               if [[ $localBuild -eq $remoteBuild
                 && $localRevision -eq $remoteRevision ]]

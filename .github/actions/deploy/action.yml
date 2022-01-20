@@ -18,10 +18,10 @@ runs:
   using: composite
   steps:
     - uses: ./.github/actions/register-pac
-    - id: get-repo-solutions
-      uses: ./.github/actions/get-repo-solutions
+    - id: get-repo-solution-names
+      uses: ./.github/actions/get-repo-solution-names
     - env:
-        SOLUTION_NAMES: ${{ steps.get-repo-solutions.outputs.solution-names }}
+        SOLUTION_NAMES: ${{ steps.get-repo-solution-names.outputs.solution-names }}
       id: get-repo-solution-versions
       run: |
         $solutionVersionsList = New-Object System.Collections.Generic.List[string]

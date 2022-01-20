@@ -106,19 +106,40 @@ runs:
 
           case $action in
             import | update)
+              echo "importing $name"
               pac solution import \
                 --path "$name.zip" \
                 --activate-plugins \
                 --async
             ;;
             upgrade)
+              echo "importing holding solution for $name"
               pac solution import \
                 --path "$name.zip" \
                 --activate-plugins \
                 --import-as-holding \
                 --async
-              upgrades="$name;$upgrades"
+              upgrades="$name,$upgrades"
+            ;;
+            skip)
+              echo "$name is already up-to-date; skipping"
+            ;;
+            *)
+              echo "::error title=Unexpected Action::unexpected action ($action) for $name"
+              exit 1
             ;;
           esac
+
         done
+
+        if [[ $upgrades != "" ]]
+        then
+          solutionsToUpgrade=$(echo ${upgrades::-1} | tr "," "\n")
+          for name in $solutionsToUpgrade
+            echo "applying upgrade to $name"
+            pac solution upgrade \
+              --solution-name $name \
+              --async
+          done
+        fi
       shell: bash

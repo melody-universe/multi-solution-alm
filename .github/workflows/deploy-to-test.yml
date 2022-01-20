@@ -16,4 +16,4 @@ jobs:
           environment-url: ${{ secrets.URL }}
           app-id: ${{ secrets.CLIENT_ID }}
           client-secret: ${{ secrets.CLIENT_SECRET }}
-          tenant-id: ${{ secrets.TENANT_ID }};
+          tenant-id: ${{ secrets.TENANT_ID }}

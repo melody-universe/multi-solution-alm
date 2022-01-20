@@ -24,10 +24,12 @@ runs:
         SOLUTION_NAMES: ${{ steps.get-repo-solution-names.outputs.solution-names }}
       id: get-repo-solution-versions
       run: |
+        Write-Host "`$env:SOLUTION_NAMES = $env:SOLUTION_NAMES"
         $solutionVersionsList = New-Object System.Collections.Generic.List[string]
         $env:SOLUTION_NAMES.Split(",") `
           | ForEach-Object {
             $solutionName = $_
+            Write-Host "Getting solution version for $solutionName"
             $xml = New-Object xml
             $xml.Load("$solutionName/Other/Solution.xml")
             $versionNode = $xml.SelectSingleNode(

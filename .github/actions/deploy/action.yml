@@ -99,6 +99,7 @@ runs:
             echo "::error title=Unexpected Version Number::$name is a higher version in the target environment ($remoteVersion) than in the locally packed solution ($localVersion), and rollback is not currently supported."
             exit 1
           elif [[ $action == "skip" ]]
+          then
             echo "$name is already up-to-date; skipping"
           else
             pac solution pack \

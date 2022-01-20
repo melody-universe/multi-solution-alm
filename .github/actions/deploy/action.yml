@@ -71,13 +71,13 @@ runs:
             if [[ $localMajor -eq $remoteMajor
               && $localMinor -eq $localMinor ]]
             then
-              if [[ $localBuild -eq $localBuild
-                && $localRevision -eq $localRevision ]]
+              if [[ $localBuild -eq $remoteBuild
+                && $localRevision -eq $remoteRevision ]]
               then
                 action="skip"
               elif [[ $localBuild -gt $remoteBuild
                 || ($localBuild -eq $remoteBuild
-                  && $localBuild -gt $remoteBuild) ]]
+                  && $localRevision -gt $remoteRevision) ]]
               then
                 action="update"
               else

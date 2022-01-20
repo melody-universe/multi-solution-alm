@@ -50,7 +50,7 @@ runs:
           localMinor=$(echo $localVersion | awk -F '.' '{print $2}')
           localBuild=$(echo $localVersion | awk -F '.' '{print $3}')
           localRevision=$(echo $localVersion | awk -F '.' '{print $4}')
-          echo "local solution version: $localVersion"
+          echo "local version: $localVersion"
 
           remoteVersion=$(curl -s \
             -H "Accept: application/json" \
@@ -58,6 +58,7 @@ runs:
             "$URL/api/data/v9.2/solutions?\$select=version&\$filter=uniquename%20eq%20'$name'" | \
             jq -r ".value[0].version"
           )
+          echo "remote version: $remoteVersion"
           if [[ $remoteVersion == "null" ]]
           then
             action="import"

@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ImportExportXml version="9.2.21114.136" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <SolutionManifest>
-    <UniqueName>melody_core</UniqueName>
+    <UniqueName>melody_web_resources</UniqueName>
     <LocalizedNames>
-      <LocalizedName description="Core" languagecode="1033" />
+      <LocalizedName description="Web Resources" languagecode="1033" />
     </LocalizedNames>
     <Descriptions />
-    <Version>1.5.0.1</Version>
+    <Version>1.0.0.0</Version>
     <Managed>2</Managed>
     <Publisher>
       <UniqueName>MelodyUniverse</UniqueName>
@@ -78,14 +78,8 @@
       </Addresses>
     </Publisher>
     <RootComponents>
-      <RootComponent type="1" schemaName="mel_foo" behavior="0" />
-      <RootComponent type="9" schemaName="mel_choice1" behavior="0" />
+      <RootComponent type="61" schemaName="mel_sample_javascript.js" behavior="0" />
     </RootComponents>
-    <MissingDependencies>
-      <MissingDependency>
-        <Required type="61" schemaName="mel_sample_javascript.js" displayName="mel_sample_javascript.js" solution="Active" />
-        <Dependent type="60" displayName="Information" parentDisplayName="Foo" id="{416d2ad3-551d-436b-9a7e-4fbc1b05d9d0}" />
-      </MissingDependency>
-    </MissingDependencies>
+    <MissingDependencies />
   </SolutionManifest>
 </ImportExportXml>

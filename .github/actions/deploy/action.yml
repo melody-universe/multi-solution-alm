@@ -94,7 +94,7 @@ runs:
             exit 1
           fi
 
-          pac solution solution pack \
+          pac solution pack \
             --zipfile "$name.zip" \
             --folder $name \
             --packagetype Managed

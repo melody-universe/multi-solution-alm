@@ -1,3 +1,4 @@
-function onLoad() {
-  console.log("in the onload event");
+function onLoad(executionContext) {
+  const formContext = executionContext.getFormContext();
+  formContext.getAttribute("mel_name").setValue("Hello");
 }

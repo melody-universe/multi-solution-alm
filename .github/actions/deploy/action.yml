@@ -39,7 +39,8 @@ runs:
       run: |
         solutionNames=$(echo $SOLUTION_NAMES | tr "," "\n")
         upgrades=""
-        for name in $solutionNames; do
+        for name in $solutionNames
+        do
           echo "solution name: $name"
           localVersion=$(
             grep -iEo "<version>[0-9.]*" "./$name/Other/Solution.xml" |
@@ -97,45 +98,43 @@ runs:
           then
             echo "::error title=Unexpected Version Number::$name is a higher version in the target environment ($remoteVersion) than in the locally packed solution ($localVersion), and rollback is not currently supported."
             exit 1
+          elif [[ $action == "skip" ]]
+            echo "$name is already up-to-date; skipping"
+          else
+            pac solution pack \
+              --zipfile "$name.zip" \
+              --folder $name \
+              --packagetype Managed
+            case $action in
+              import | update)
+                echo "importing $name"
+                pac solution import \
+                  --path "$name.zip" \
+                  --activate-plugins \
+                  --async
+              ;;
+              upgrade)
+                echo "importing holding solution for $name"
+                pac solution import \
+                  --path "$name.zip" \
+                  --activate-plugins \
+                  --import-as-holding \
+                  --async
+                upgrades="$name,$upgrades"
+              ;;
+              *)
+                echo "::error title=Unexpected Action::unexpected action ($action) for $name"
+                exit 1
+              ;;
+            esac
           fi
-
-          pac solution pack \
-            --zipfile "$name.zip" \
-            --folder $name \
-            --packagetype Managed
-
-          case $action in
-            import | update)
-              echo "importing $name"
-              pac solution import \
-                --path "$name.zip" \
-                --activate-plugins \
-                --async
-            ;;
-            upgrade)
-              echo "importing holding solution for $name"
-              pac solution import \
-                --path "$name.zip" \
-                --activate-plugins \
-                --import-as-holding \
-                --async
-              upgrades="$name,$upgrades"
-            ;;
-            skip)
-              echo "$name is already up-to-date; skipping"
-            ;;
-            *)
-              echo "::error title=Unexpected Action::unexpected action ($action) for $name"
-              exit 1
-            ;;
-          esac
-
         done
 
         if [[ $upgrades != "" ]]
         then
           solutionsToUpgrade=$(echo ${upgrades::-1} | tr "," "\n")
           for name in $solutionsToUpgrade
+          do
             echo "applying upgrade to $name"
             pac solution upgrade \
               --solution-name $name \

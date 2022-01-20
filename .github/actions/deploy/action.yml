@@ -5,7 +5,7 @@ inputs:
     description: 'URL of Power Platform environment to connect with; e.g. "https://test-env.crm.dynamics.com"'
     required: true
   app-id:
-    description: 'The application id to authenticate with.'
+    description: "The application id to authenticate with."
     required: true
   client-secret:
     description: "The client secret to authenticate with."
@@ -20,26 +20,32 @@ runs:
     - uses: ./.github/actions/register-pac
     - id: get-repo-solution-names
       uses: ./.github/actions/get-repo-solution-names
+    - id: get-api-token
+      uses: ./.github/actions/get-api-token
+      with:
+        environment-url: ${{ inputs.environment-url }}
+        app-id: ${{ inputs.app-id }}
+        client-secret: ${{ inputs.client-secret }}
+        tenant-id: ${{ inputs.tenant-id }}
     - env:
         SOLUTION_NAMES: ${{ steps.get-repo-solution-names.outputs.solution-names }}
-      id: get-repo-solution-versions
+        TOKEN: ${{ steps.get-api-token.outputs.token }}
+        URL: ${{ inputs.environment-url }}
       run: |
-        Write-Host "`$env:SOLUTION_NAMES = $env:SOLUTION_NAMES"
-        $solutionVersionsList = New-Object System.Collections.Generic.List[string]
-        $env:SOLUTION_NAMES.Split(",") `
-          | ForEach-Object {
-            $solutionName = $_
-            Write-Host "Getting solution version for $solutionName"
-            $xml = New-Object xml
-            $xml.Load("$solutionName/Other/Solution.xml")
-            $versionNode = $xml.SelectSingleNode(
-              "/ImportExportXml/SolutionManifest/Version"
-            )
-            $version = $versionNode.InnerText
-            Write-Host "$solutionName Version (in repo): $version"
-            $solutionVersionsList.Add($version)
-          }
-        $solutionVersions = [string]::Join(",", $solutionVersionsList)
-        Write-Host "set-output name=solution-versions::$solutionVersions"
-        Write-Host "::set-output name=solution-versions::$solutionVersions"
-      shell: pwsh
+        solutionNames=$(echo $SOLUTION_NAMES | tr "," "\n")
+        for name in $solutionNames; do
+          echo "solution name: $name"
+          localVersion=$(
+            grep -iEo "<version>[0-9.]*" "./$name/Other/Solution.xml" |
+            awk -F '>' '{print $2}'
+          )
+          echo "local solution version: $localVersion"
+          remoteVersion=$(curl -s \
+            -H "Accept: application/json" \
+            -H "Authorization: Bearer $TOKEN" \
+            "$URL/api/data/v9.2/solutions?\$select=version&\$filter=uniquename%20eq%20'$name'" | \
+            jq -r ".value[0].version"
+          )
+          echo "remote solution version: $remoteVersion"
+        done
+      shell: bash

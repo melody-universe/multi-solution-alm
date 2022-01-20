@@ -5,7 +5,7 @@
     <IntroducedVersion>1.0</IntroducedVersion>
     <FormPresentation>1</FormPresentation>
     <FormActivationState>1</FormActivationState>
-    <form>
+    <form headerdensity="HighWithControls">
       <tabs>
         <tab verticallayout="true" id="{19e31919-74ae-49f6-b178-a2b5b8a48021}" IsUserDefined="1">
           <labels>
@@ -42,6 +42,61 @@
           </columns>
         </tab>
       </tabs>
+      <header id="{35e2923e-a0ed-48f1-b8d1-c0bbb2bb4da9}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{3bbf20e6-c16d-42a5-af7d-6793750087ac}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{709ee2fe-4917-47f2-9365-0bae3bb3029b}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{988eaad2-7aaa-45b1-8049-5e56425d9325}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{93b40a08-4173-4983-8bea-1192710bbedb}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{5a05178a-9245-4b18-94fe-db73e7baf348}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{488e4f19-7b4e-44a9-a6d4-049de96fe16d}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{1de1d702-54a5-40e3-9636-a2eed8e3f9c8}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
+      <formLibraries>
+        <Library name="mel_sample_javascript.js" libraryUniqueId="{430b3100-f3f1-4e1e-b863-841eb215b5b2}" />
+      </formLibraries>
+      <events>
+        <event name="onload" application="true" active="true">
+          <Handlers>
+            <Handler functionName="onLoad" libraryName="mel_sample_javascript.js" handlerUniqueId="{6f5b8506-c42a-49ca-a2f1-53873481c2fb}" enabled="true" parameters="" passExecutionContext="true" />
+          </Handlers>
+        </event>
+      </events>
     </form>
     <IsCustomizable>1</IsCustomizable>
     <CanBeDeleted>1</CanBeDeleted>

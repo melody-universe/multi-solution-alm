@@ -33,19 +33,87 @@ runs:
         URL: ${{ inputs.environment-url }}
       run: |
         solutionNames=$(echo $SOLUTION_NAMES | tr "," "\n")
+        upgrades=""
         for name in $solutionNames; do
           echo "solution name: $name"
           localVersion=$(
             grep -iEo "<version>[0-9.]*" "./$name/Other/Solution.xml" |
             awk -F '>' '{print $2}'
           )
+          localMajor=$(echo $localVersion | awk -F '.' '{print $1}')
+          localMinor=$(echo $localVersion | awk -F '.' '{print $2}')
+          localBuild=$(echo $localVersion | awk -F '.' '{print $3}')
+          localRevision=$(echo $localVersion | awk -F '.' '{print $4}')
           echo "local solution version: $localVersion"
+
           remoteVersion=$(curl -s \
             -H "Accept: application/json" \
             -H "Authorization: Bearer $TOKEN" \
             "$URL/api/data/v9.2/solutions?\$select=version&\$filter=uniquename%20eq%20'$name'" | \
             jq -r ".value[0].version"
           )
-          echo "remote solution version: $remoteVersion"
+          if [[ $remoteVersion == "null" ]]
+          then
+            action="import"
+          else
+            remoteMajor=$(echo $remoteVersion | awk -F '.' '{print $1}')
+            remoteMinor=$(echo $remoteVersion | awk -F '.' '{print $2}')
+            remoteBuild=$(echo $remoteVersion | awk -F '.' '{print $3}')
+            remoteRevision=$(echo $remoteVersion | awk -F '.' '{print $4}')
+
+            if [[ $localMajor -eq $remoteMajor
+              && $localMinor -eq $localMinor ]]
+            then
+              if [[ $localBuild -eq $localBuild
+                && $localRevision -eq $localRevision ]]
+              then
+                action="skip"
+              elif [[ $localBuild -gt $remoteBuild
+                || ($localBuild -eq $remoteBuild
+                  && $localBuild -gt $remoteBuild) ]]
+              then
+                action="update"
+              else
+                action="rollback"
+              fi
+            elif [[ $localMajor -gt $remoteMajor
+              || ($localMajor -eq $remoteMajor
+                && $localMinor -gt $remoteMinor) ]]
+            then
+              action="upgrade"
+            else
+              action="rollback"
+            fi
+          fi
+
+          echo "deployment action: $action"
+
+          if [[ $action == "rollback" ]]
+          then
+            echo "::error title=Unexpected Version Number::$name is a higher version in the target environment ($remoteVersion) than in the locally packed solution ($localVersion), and rollback is not currently supported."
+            exit 1
+          fi
+
+          pac solution solution pack \
+            --zipfile "$name.zip" \
+            --folder $name \
+            --packagetype Managed
+
+          case $action in
+            import | update)
+              pac solution import \
+                --path "$name.zip" \
+                --activate-plugins \
+                --async
+            ;;
+            upgrade)
+              pac solution import \
+                --path "$name.zip" \
+                --activate-plugins \
+                --import-as-holding \
+                --async
+              upgrades="$name;$upgrades"
+            ;;
+          esac
         done
       shell: bash

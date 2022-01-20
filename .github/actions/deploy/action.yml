@@ -1,0 +1,43 @@
+name: deploy
+description: pack and import all solutions within this repository
+inputs:
+  environment-url:
+    description: 'URL of Power Platform environment to connect with; e.g. "https://test-env.crm.dynamics.com"'
+    required: true
+  app-id:
+    description: 'The application id to authenticate with.'
+    required: true
+  client-secret:
+    description: "The client secret to authenticate with."
+    required: true
+  tenant-id:
+    description: "Tenant id to authenticate with."
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/register-pac
+    - id: get-repo-solutions
+      uses: ./.github/actions/get-repo-solutions
+    - env:
+        SOLUTION_NAMES: ${{ steps.get-repo-solutions.outputs.solution-names }}
+      id: get-repo-solution-versions
+      run: |
+        $solutionVersionsList = New-Object System.Collections.Generic.List[string]
+        $env:SOLUTION_NAMES.Split(",") `
+          | ForEach-Object {
+            $solutionName = $_
+            $xml = New-Object xml
+            $xml.Load("$solutionName/Other/Solution.xml")
+            $versionNode = $xml.SelectSingleNode(
+              "/ImportExportXml/SolutionManifest/Version"
+            )
+            $version = $versionNode.InnerText
+            Write-Host "$solutionName Version (in repo): $version"
+            $solutionVersionsList.Add($version)
+          }
+        $solutionVersions = [string]::Join(",", $solutionVersionsList)
+        Write-Host "set-output name=solution-versions::$solutionVersions"
+        Write-Host "::set-output name=solution-versions::$solutionVersions"
+      shell: pwsh

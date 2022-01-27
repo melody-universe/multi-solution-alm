@@ -21,10 +21,11 @@ runs:
           Write-Host "package id: $packageId"
 
           $id = $packageId.ToLower()
-          $packageInfo = Invoke-RestMethod `
-            "https://api.nuget.org/v3/registration5-semver1/$id/index.json"
-          $version = $packageInfo.items[0].upper
-          Write-Host "latest version: $version"
+          # $packageInfo = Invoke-RestMethod `
+          #   "https://api.nuget.org/v3/registration5-semver1/$id/index.json"
+          # $version = $packageInfo.items[0].upper
+          # Write-Host "latest version: $version"
+          $version = "1.10.4"
 
           Invoke-WebRequest `
             -Uri "https://api.nuget.org/v3-flatcontainer/$id/$version/$id.$version.nupkg" `

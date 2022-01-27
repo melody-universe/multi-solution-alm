@@ -5,7 +5,7 @@ inputs:
     description: 'URL of Power Platform environment to connect with; e.g. "https://test-env.crm.dynamics.com"'
     required: true
   app-id:
-    description: 'The application id to authenticate with.'
+    description: "The application id to authenticate with."
     required: true
   client-secret:
     description: "The client secret to authenticate with."
@@ -24,6 +24,8 @@ inputs:
 runs:
   using: composite
   steps:
+    - uses: ./.github/actions/use-development
+
     - id: validate-solutions-list
       uses: ./.github/actions/validate-solutions-list
       with:
@@ -32,8 +34,6 @@ runs:
         app-id: ${{ inputs.app-id }}
         client-secret: ${{ inputs.client-secret }}
         tenant-id: ${{ inputs.tenant-id }}
-
-    - uses: ./.github/actions/use-development
 
     - uses: ./.github/actions/pac-auth
       with:

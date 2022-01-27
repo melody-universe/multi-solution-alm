@@ -1,16 +1,16 @@
-name: Deploy to Test
+name: Deploy to Production
 
 on:
   push:
     branches:
-      - release
+      - main
   workflow_dispatch:
 
-concurrency: test
+concurrency: production
 
 jobs:
-  deploy-to-test:
-    environment: test
+  deploy-to-production:
+    environment: production
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

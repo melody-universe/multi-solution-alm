@@ -25,6 +25,7 @@ runs:
   using: composite
   steps:
     - uses: ./.github/actions/use-development
+      if: ${{ github.ref == 'refs/heads/main' }}
 
     - id: validate-solutions-list
       uses: ./.github/actions/validate-solutions-list
@@ -83,6 +84,7 @@ runs:
       run: |
         solutions=$(echo $SOLUTION_NAMES | tr "," "\n")
         for solution in $solutions; do
+          rm $solution -rf
           pac solution unpack \
             --zipfile $RUNNER_TEMP/$solution.zip \
             --folder $solution \
@@ -120,7 +122,7 @@ runs:
           minor=$(echo $currentVersion | awk -F '.' '{print $2}')
           build=$(echo $currentVersion | awk -F '.' '{print $3}')
           revision=$(echo $currentVersion | awk -F '.' '{print $4}')
-          
+
           action="skip"
           if [[ $message =~ ^major:.*$ ]]
           then
@@ -171,6 +173,12 @@ runs:
         done
 
     - uses: EndBug/add-and-commit@v7
+      if: ${{ github.ref == 'refs/heads/main' }}
       with:
         branch: development
+        message: ${{ steps.get-message.outputs.message }}
+
+    - uses: EndBug/add-and-commit@v7
+      if: ${{ github.ref != 'refs/heads/main' }}
+      with:
         message: ${{ steps.get-message.outputs.message }}

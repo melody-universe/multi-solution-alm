@@ -6,7 +6,7 @@ description: |
 inputs:
   solution-names:
     description: "Comma-separated list of names of solutions to verify"
-    required: true
+    required: false
   environment-url:
     description: 'URL of Power Platform environment to connect with; e.g. "https://test-env.crm.dynamics.com"'
     required: false

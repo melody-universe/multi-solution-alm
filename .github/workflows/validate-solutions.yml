@@ -1,0 +1,22 @@
+name: Validate Solutions
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  pack-all:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/register-pac
+      - run: |
+          solutions=$(cat solution-names.txt)
+          for solution in $solutions
+          do
+            pac solution pack \
+              --zipfile packed-solutions/$solution.zip \
+              --folder $solution \
+              --packagetype Both
+          done
+        shell: bash

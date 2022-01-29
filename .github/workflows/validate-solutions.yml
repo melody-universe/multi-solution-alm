@@ -2,6 +2,10 @@ name: Validate Solutions
 
 on:
   push:
+    branches:
+      exclude:
+        - release
+        - main
   workflow_dispatch:
 
 jobs:

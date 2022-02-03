@@ -1,0 +1,25 @@
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: The branch, tag or SHA to rollback to
+        required: true
+
+concurrency: production
+
+jobs:
+  rollback-production:
+    environment: production
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.ref }}
+      - uses: ./.github/actions/deploy
+        with:
+          environment-url: ${{ secrets.URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}

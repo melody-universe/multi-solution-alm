@@ -13,6 +13,10 @@ inputs:
   tenant-id:
     description: "Tenant id to authenticate with."
     required: true
+  allow-rollback:
+    default: false
+    description: "Flag to allow rollback method"
+    required: false
 
 runs:
   using: composite
@@ -97,9 +101,49 @@ runs:
 
           if [[ $action == "rollback" ]]
           then
-            echo "::error title=Unexpected Version Number::$name is a higher version in the target environment ($remoteVersion) than in the locally packed solution ($localVersion), and rollback is not currently supported."
-            exit 1
-          elif [[ $action == "skip" ]]
+            if [[ "${{ inputs.allow-rollback }}" != "true" ]]
+            then
+              echo "::error title=Unexpected Version Number::$name is a higher version in the target environment ($remoteVersion) than in the locally packed solution ($localVersion), and rollback is not enabled for this deployment."
+              exit 1
+            fi
+
+            rollbackMajor=$localMajor
+            rollbackMinor=$localMinor
+            rollbackBuild=$localBuild
+            rollbackRevision=$localRevision
+
+            if [[ $rollbackRevision -gt 0 ]]
+            then
+              let "rollbackRevision = $rollbackRevision - 1"
+            elif [[ $rollbackBuild -gt 0 ]]
+            then
+              let "rollbackBuild = $rollbackBuild - 1"
+            elif [[ $rollbackMinor -gt 0 ]]
+            then
+              let "rollbackMinor = $rollbackMinor - 1"
+            elif [[ $rollbackMajor -gt 0 ]]
+            then
+              let "rollbackMajor = $rollbackMajor - 1"
+            else
+              echo "::error title=Unexpected Version Number::$name has a local version of 0.0.0.0. Cannot rollback to this version number."
+              exit 1
+            fi
+            rollbackVersion="$rollbackMajor.$rollbackMinor.$rollbackBuild.$rollbackRevision"
+
+            echo "Generating solution with reduced version number ($rollbackVersion) for $name"
+            sed -i \
+              "s|\(<version>\)[0-9.]*\(</version>\)|\1$rollbackVersion\2|i" \
+              "./$name/Other/Solution.xml"
+            pac solution pack \
+              --zipfile "$name_reduced.zip" \
+              --folder $name \
+              --packagetype Managed
+            echo "Restoring version to commit value for $name"
+            sed -i \
+              "s|\(<version>\)[0-9.]*\(</version>\)|\1$localVersion\2|i" \
+              "./$name/Other/Solution.xml"
+          fi
+          if [[ $action == "skip" ]]
           then
             echo "$name is already up-to-date; skipping"
           else
@@ -118,6 +162,20 @@ runs:
               ;;
               upgrade)
                 echo "importing holding solution for $name"
+                pac solution import \
+                  --path "$name.zip" \
+                  --activate-plugins \
+                  --import-as-holding \
+                  --async
+                upgrades="$name,$upgrades"
+              ;;
+              rollback)
+                echo "importing reduced version number for $name"
+                pac solution import \
+                  --path "$name_reduced.zip" \
+                  --activate-plugins \
+                  --async
+                echo "importing rollback version number for $name"
                 pac solution import \
                   --path "$name.zip" \
                   --activate-plugins \

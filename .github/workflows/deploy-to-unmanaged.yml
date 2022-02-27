@@ -15,8 +15,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/deploy
         with:
-          environment-url: ${{ secrets.SANDBOX_URL }}
-          app-id: ${{ secrets.SANDBOX_APPLICATION_ID }}
-          client-secret: ${{ secrets.SANDBOX_CLIENT_SECRET }}
-          tenant-id: ${{ secrets.SANDBOX_TENANT_ID }}
+          environment-url: ${{ secrets.URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
           managed: false

@@ -31,5 +31,10 @@
         <label description="Option J" languagecode="1033" />
       </labels>
     </option>
+    <option value="100000004">
+      <labels>
+        <label description="Option K" languagecode="1033" />
+      </labels>
+    </option>
   </options>
 </optionset>

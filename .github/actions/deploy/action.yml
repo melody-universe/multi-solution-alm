@@ -253,7 +253,7 @@ runs:
               #   we want to do so the reverse order that we imported them.
               upgrades="$name,$upgrades"
             
-            elif [[ $MANAGED == "true" && $action == "rollback"]]
+            elif [[ $MANAGED == "true" && $action == "rollback" ]]
             then
               # First reduce the version by importing as an update
               echo "importing reduced version number for $name"

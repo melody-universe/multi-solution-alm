@@ -1,0 +1,22 @@
+name: Deploy to Unmanaged
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: unmanaged
+  cancel-in-progress: true
+
+jobs:
+  deploy-to-sandbox:
+    environment: unmanaged
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/deploy
+        with:
+          environment-url: ${{ secrets.URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          managed: false

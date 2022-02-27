@@ -209,7 +209,7 @@ runs:
           else
             # First, pack the solution
             echo "packing $name"
-            if [[ $managed == "true" ]]
+            if [[ $MANAGED == "true" ]]
             then
               pac solution pack \
                 --zipfile "$name.zip" \

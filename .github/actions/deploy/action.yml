@@ -253,6 +253,26 @@ runs:
               #   we want to do so the reverse order that we imported them.
               upgrades="$name,$upgrades"
             
+            elif [[ $MANAGED == "true" && $action == "rollback"]]
+            then
+              # First reduce the version by importing as an update
+              echo "importing reduced version number for $name"
+              pac solution import \
+                --path "$name_reduced.zip" \
+                --activate-plugins \
+                --async
+              
+              # Then import the rollback solution as a holding solution
+              echo "importing rollback version number for $name"
+              pac solution import \
+                --path "$name.zip" \
+                --activate-plugins \
+                --import-as-holding \
+                --async
+
+              # Add the holding solution to the upgrades list, same as for upgrades
+              upgrades="$name,$upgrades"
+            
             # If the determined action wasn't accounted for, write a friendly error to the console and exit the action
             #   This *should* never get hit, but we've added the check in case a breaking change is introduced to the previous logic 
             else

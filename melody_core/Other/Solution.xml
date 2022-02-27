@@ -6,7 +6,7 @@
       <LocalizedName description="Core" languagecode="1033" />
     </LocalizedNames>
     <Descriptions />
-    <Version>1.5.0.5</Version>
+    <Version>1.6.0.0</Version>
     <Managed>2</Managed>
     <Publisher>
       <UniqueName>MelodyUniverse</UniqueName>
@@ -78,58 +78,13 @@
       </Addresses>
     </Publisher>
     <RootComponents>
-      <RootComponent type="1" schemaName="contact" behavior="1" />
       <RootComponent type="1" schemaName="mel_foo" behavior="0" />
       <RootComponent type="9" schemaName="mel_choice1" behavior="0" />
     </RootComponents>
     <MissingDependencies>
       <MissingDependency>
-        <Required type="2" schemaName="defaultpricelevelid" displayName="Price List" parentSchemaName="contact" parentDisplayName="Person" solution="msdynce_ProductManagement (9.0.4.0066)">
-          <package>msdynce_ProductManagementAnchor (9.0.22013.10001)</package>
-        </Required>
-        <Dependent type="60" displayName="Information" parentDisplayName="Person" id="{894cc46a-b0cb-4ab0-8bf6-200544e46a2d}" />
-      </MissingDependency>
-      <MissingDependency>
-        <Required type="2" schemaName="originatingleadid" displayName="Originating Lead" parentSchemaName="contact" parentDisplayName="Person" solution="msdynce_LeadManagement (9.0.4.0066)">
-          <package>msdynce_LeadManagementAnchor (9.0.22013.10001)</package>
-        </Required>
-        <Dependent type="60" displayName="Information" parentDisplayName="Person" id="{894cc46a-b0cb-4ab0-8bf6-200544e46a2d}" />
-      </MissingDependency>
-      <MissingDependency>
-        <Required type="2" schemaName="preferredequipmentid" displayName="Preferred Facility/Equipment" parentSchemaName="contact" parentDisplayName="Person" solution="msdynce_Service (9.0.5.56)">
-          <package>msdynce_ServiceAnchor (9.0.22013.1010)</package>
-        </Required>
-        <Dependent type="60" displayName="Information" parentDisplayName="Person" id="{894cc46a-b0cb-4ab0-8bf6-200544e46a2d}" />
-      </MissingDependency>
-      <MissingDependency>
-        <Required type="2" schemaName="preferredserviceid" displayName="Preferred Service" parentSchemaName="contact" parentDisplayName="Person" solution="msdynce_Service (9.0.5.56)">
-          <package>msdynce_ServiceAnchor (9.0.22013.1010)</package>
-        </Required>
-        <Dependent type="60" displayName="Information" parentDisplayName="Person" id="{894cc46a-b0cb-4ab0-8bf6-200544e46a2d}" />
-      </MissingDependency>
-      <MissingDependency>
-        <Required type="26" schemaName="Active Services" displayName="Active Services" parentSchemaName="service" parentDisplayName="Service" solution="msdynce_Service (9.0.5.56)" id="{2bd4de5e-a7b4-4f5d-8fde-eb3b62d8e2b2}">
-          <package>msdynce_ServiceAnchor (9.0.22013.1010)</package>
-        </Required>
-        <Dependent type="60" displayName="Information" parentDisplayName="Person" id="{894cc46a-b0cb-4ab0-8bf6-200544e46a2d}" />
-      </MissingDependency>
-      <MissingDependency>
-        <Required type="60" displayName="Information" parentDisplayName="Person" solution="msdynce_AppCommon (9.0.4.0066)" id="{894cc46a-b0cb-4ab0-8bf6-200544e46a2d}">
-          <package>msdynce_AppCommonAnchor (9.0.22013.10001)</package>
-        </Required>
-        <Dependent type="60" displayName="Information" parentDisplayName="Person" id="{894cc46a-b0cb-4ab0-8bf6-200544e46a2d}" />
-      </MissingDependency>
-      <MissingDependency>
         <Required type="61" schemaName="mel_sample_javascript.js" displayName="mel_sample_javascript.js" solution="Active" />
         <Dependent type="60" displayName="Information" parentDisplayName="Foo" id="{416d2ad3-551d-436b-9a7e-4fbc1b05d9d0}" />
-      </MissingDependency>
-      <MissingDependency>
-        <Required type="61" schemaName="msdyn_/ActivityFeeds.Form.js" displayName="msdyn_/ActivityFeeds.Form.js" solution="ActivityFeedsCore (9.0.0.0005)" />
-        <Dependent type="60" displayName="Information" parentDisplayName="Person" id="{894cc46a-b0cb-4ab0-8bf6-200544e46a2d}" />
-      </MissingDependency>
-      <MissingDependency>
-        <Required type="61" schemaName="msdyn_/RecordWall.htm" displayName="msdyn_/RecordWall.htm" solution="ActivityFeedsCore (9.0.0.0005)" />
-        <Dependent type="60" displayName="Information" parentDisplayName="Person" id="{894cc46a-b0cb-4ab0-8bf6-200544e46a2d}" />
       </MissingDependency>
     </MissingDependencies>
   </SolutionManifest>
